@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title th:text="${title}">Detalle Propiedad</title>
+</head>
+<body>
+    <section>
+        <!-- Botones navegación -->
+        <div class="mb-3">
+            <a th:href="@{/propiedades}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+            <a th:href="@{/inmuebles/{id}(id=${propiedad.inmueble.id})}" class="btn btn-primary">
+                <i class="bi bi-house-door"></i> Ver Inmueble
+            </a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="bi bi-boxes"></i> Detalle de Propiedad Adicional
+                </h4>
+                <div>
+                    <a th:href="@{/propiedades/{id}/edit(id=${propiedad.id})}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <form th:action="@{/propiedades/{id}/delete(id=${propiedad.id})}" 
+                          method="post" 
+                          style="display:inline;"
+                          onsubmit="return confirmarEliminacion('¿Eliminar esta propiedad?');">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> <span th:text="${propiedad.id}">1</span></p>
+                        <p><strong>Tipo:</strong> <span th:text="${propiedad.tipo}">Garaje</span></p>
+                        <p><strong>Derrama:</strong> <span th:text="${propiedad.derrama} + ' €'">50 €</span></p>
+                        <p><strong>IBI:</strong> <span th:text="${propiedad.ibi}">100 €/año</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Inmueble asociado:</strong></p>
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="mb-1"><strong>ID:</strong> <span th:text="${propiedad.inmueble.id}">1</span></p>
+                                <p class="mb-1"><strong>Dirección:</strong> <span th:text="${propiedad.inmueble.direccion}">Calle Larga, 10</span></p>
+                                <p class="mb-0"><strong>Tipo:</strong> <span th:text="${propiedad.inmueble.tipoVivienda}">Piso</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title th:text="${title}">Formulario Inmueble</title>
+</head>
+<body>
+    <section>
+        <!-- Botón volver -->
+        <a th:href="@{/inmuebles}" class="btn btn-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Volver al listado
+        </a>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-house-door"></i> 
+                    <span th:text="${action} + ' Inmueble'">Crear Inmueble</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <form th:action="${inmueble.id != null} ? @{/inmuebles/{id}(id=${inmueble.id})} : @{/inmuebles}" 
+                      method="post" 
+                      th:object="${inmueble}">
+                    
+                    <div class="row">
+                        <!-- COLUMNA IZQUIERDA -->
+                        <div class="col-md-6">
+                            
+                            <!-- Dirección -->
+                            <div class="mb-3">
+                                <label for="direccion" class="form-label">Dirección <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="direccion" 
+                                       th:field="*{direccion}" 
+                                       required 
+                                       maxlength="45"
+                                       placeholder="Calle Larga, 10">
+                            </div>
+
+                            <!-- Tipo Vivienda -->
+                            <div class="mb-3">
+                                <label for="tipoVivienda" class="form-label">Tipo de Vivienda <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tipoVivienda" th:field="*{tipoVivienda}" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Piso">Piso</option>
+                                    <option value="Chalet">Chalet</option>
+                                    <option value="Ático">Ático</option>
+                                    <option value="Casa">Casa</option>
+                                    <option value="Adosado">Adosado</option>
+                                    <option value="VPO">VPO</option>
+                                    <option value="Dúplex">Dúplex</option>
+                                    <option value="Estudio">Estudio</option>
+                                </select>
+                            </div>
+
+                            <!-- Tipo Operación -->
+                            <div class="mb-3">
+                                <label for="tipoOperacion" class="form-label">Tipo de Operación <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tipoOperacion" th:field="*{tipoOperacion}" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="0">Venta</option>
+                                    <option value="1">Alquiler</option>
+                                </select>
+                            </div>
+
+                            <!-- Precio -->
+                            <div class="mb-3">
+                                <label for="precio" class="form-label">Precio (€) <span class="text-danger">*</span></label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="precio" 
+                                       th:field="*{precio}" 
+                                       required 
+                                       min="0" 
+                                       step="0.01"
+                                       placeholder="180000.00">
+                            </div>
+
+                            <!-- Habitaciones -->
+                            <div class="mb-3">
+                                <label for="numHab" class="form-label">Número de Habitaciones <span class="text-danger">*</span></label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="numHab" 
+                                       th:field="*{numHab}" 
+                                       required 
+                                       min="0" 
+                                       max="20">
+                            </div>
+
+                            <!-- Baños -->
+                            <div class="mb-3">
+                                <label for="numBanos" class="form-label">Número de Baños <span class="text-danger">*</span></label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="numBanos" 
+                                       th:field="*{numBanos}" 
+                                       required 
+                                       min="0" 
+                                       max="10">
+                            </div>
+
+                            <!-- Metros Cuadrados -->
+                            <div class="mb-3">
+                                <label for="metrosCuadrados" class="form-label">Metros Cuadrados <span class="text-danger">*</span></label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="metrosCuadrados" 
+                                       th:field="*{metrosCuadrados}" 
+                                       required 
+                                       min="0" 
+                                       step="0.01"
+                                       placeholder="100.50">
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="mb-3">
+                                <label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
+                                <select class="form-select" id="estado" th:field="*{estado}" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Obra nueva">Obra nueva</option>
+                                    <option value="Buen estado">Buen estado</option>
+                                    <option value="A reformar">A reformar</option>
+                                    <option value="Reformado">Reformado</option>
+                                    <option value="Segunda mano">Segunda mano</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <!-- COLUMNA DERECHA -->
+                        <div class="col-md-6">
+
+                            <!-- Comunidad -->
+                            <div class="mb-3">
+                                <label for="comunidad" class="form-label">Comunidad <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="comunidad" 
+                                       th:field="*{comunidad}" 
+                                       required 
+                                       maxlength="45"
+                                       placeholder="Andalucía">
+                            </div>
+
+                            <!-- Certificado Energía -->
+                            <div class="mb-3">
+                                <label for="certificadoEnergia" class="form-label">Certificado Energético <span class="text-danger">*</span></label>
+                                <select class="form-select" id="certificadoEnergia" th:field="*{certificadoEnergia}" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="A">A (Muy eficiente)</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="G">G (Poco eficiente)</option>
+                                    <option value="En trámite">En trámite</option>
+                                </select>
+                            </div>
+
+                            <!-- IBI -->
+                            <div class="mb-3">
+                                <label for="ibi" class="form-label">IBI <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="ibi" 
+                                       th:field="*{ibi}" 
+                                       required 
+                                       maxlength="45"
+                                       placeholder="500 €/año">
+                            </div>
+
+                            <!-- Nota Simple -->
+                            <div class="mb-3">
+                                <label for="notaSimple" class="form-label">Nota Simple <span class="text-danger">*</span></label>
+                                <select class="form-select" id="notaSimple" th:field="*{notaSimple}" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="Disponible">Disponible</option>
+                                    <option value="En trámite">En trámite</option>
+                                    <option value="No disponible">No disponible</option>
+                                </select>
+                            </div>
+
+                            <!-- Compartido -->
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           id="compartido" 
+                                           th:field="*{compartido}">
+                                    <label class="form-check-label" for="compartido">
+                                        ¿Es compartido?
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Válido -->
+                            <div class="mb-3">
+                                <label for="valido" class="form-label">Estado <span class="text-danger">*</span></label>
+                                <select class="form-select" id="valido" th:field="*{valido}" required>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+
+                            <!-- Anotaciones -->
+                            <div class="mb-3">
+                                <label for="anotaciones" class="form-label">Anotaciones</label>
+                                <textarea class="form-control" 
+                                          id="anotaciones" 
+                                          th:field="*{anotaciones}" 
+                                          rows="4" 
+                                          maxlength="255"
+                                          placeholder="Observaciones adicionales..."></textarea>
+                                <div class="form-text">Máximo 255 caracteres</div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a th:href="@{/inmuebles}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> 
+                            <span th:text="${action}">Guardar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

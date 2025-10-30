@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title th:text="${title}">Formulario Propiedad</title>
+</head>
+
+<body>    <section>
+        <!-- Botón volver -->
+        <a th:href="@{/propiedades}" class="btn btn-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Volver al listado
+        </a>
+
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-boxes"></i>
+                    <span th:text="${action} + ' Propiedad Adicional'">Crear Propiedad Adicional</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <form th:action="${propiedad.id != null} ? @{/propiedades/{id}(id=${propiedad.id})} : @{/propiedades}"
+                    method="post" th:object="${propiedad}">
+
+                    <!-- Inmueble asociado -->
+                    <div class="mb-3">
+                        <label for="inmuebleId" class="form-label">Inmueble <span class="text-danger">*</span></label>
+                        <!-- VERIFICAR que tenga name="inmuebleId" -->
+                        <select class="form-select" id="inmuebleId" name="inmuebleId" required>
+                            <option value="">Seleccionar inmueble...</option>
+                            <option th:each="inm : ${inmuebles}" th:value="${inm.id}"
+                                th:text="${inm.id + ' - ' + inm.direccion}"
+                                th:selected="${propiedad.inmueble != null && propiedad.inmueble.id == inm.id}">
+                            </option>
+                        </select>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Seleccione el inmueble al que pertenece esta propiedad
+                        </div>
+                    </div>
+
+                    <!-- Tipo -->
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">Tipo de Propiedad <span
+                                class="text-danger">*</span></label>
+                        <select class="form-select" id="tipo" th:field="*{tipo}" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="Garaje">
+                                <i class="bi bi-car-front"></i> Garaje
+                            </option>
+                            <option value="Trastero">Trastero</option>
+                            <option value="Piscina">Piscina</option>
+                            <option value="Jardín">Jardín</option>
+                            <option value="Terraza">Terraza</option>
+                            <option value="Azotea">Azotea</option>
+                            <option value="Parking">Parking</option>
+                            <option value="Sótano">Sótano</option>
+                            <option value="Patio">Patio</option>
+                            <option value="Zona Común">Zona Común</option>
+                        </select>
+                    </div>
+
+                    <!-- Derrama -->
+                    <div class="mb-3">
+                        <label for="derrama" class="form-label">Derrama Mensual (€) <span
+                                class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="derrama" th:field="*{derrama}" required min="0"
+                            step="0.01" placeholder="50.00">
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Coste mensual adicional por esta propiedad
+                        </div>
+                    </div>
+
+                    <!-- IBI -->
+                    <div class="mb-3">
+                        <label for="ibi" class="form-label">IBI Anual <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="ibi" th:field="*{ibi}" required maxlength="45"
+                            placeholder="100 €/año">
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Impuesto de Bienes Inmuebles anual
+                        </div>
+                    </div>
+
+                    <!-- Info del inmueble seleccionado (solo si está editando o viene de un inmueble) -->
+                    <div th:if="${propiedad.inmueble != null}" class="alert alert-info">
+                        <h6><i class="bi bi-house-door"></i> Inmueble asociado:</h6>
+                        <p class="mb-1"><strong>Dirección:</strong> <span
+                                th:text="${propiedad.inmueble.direccion}">Calle Larga, 10</span></p>
+                        <p class="mb-1"><strong>Tipo:</strong> <span
+                                th:text="${propiedad.inmueble.tipoVivienda}">Piso</span></p>
+                        <p class="mb-0">
+                            <a th:href="@{/inmuebles/{id}(id=${propiedad.inmueble.id})}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye"></i> Ver inmueble
+                            </a>
+                        </p>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a th:href="@{/propiedades}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save"></i>
+                            <span th:text="${action}">Guardar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

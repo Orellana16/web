@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title th:text="${title}">Listado de Propiedades</title>
+</head>
+<body>
+    <section>
+        <div class="card">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="bi bi-boxes"></i> Listado de Propiedades Adicionales
+                    <span th:if="${inmueble}" th:text="' - ' + ${inmueble.direccion}"></span>
+                </h4>
+                <div>
+                    <a th:if="${inmueble}" 
+                       th:href="@{/propiedades/new/inmueble/{id}(id=${inmueble.id})}" 
+                       class="btn btn-light me-2">
+                        <i class="bi bi-plus-circle"></i> Nueva para este inmueble
+                    </a>
+                    <a th:href="@{/propiedades/new}" class="btn btn-light">
+                        <i class="bi bi-plus-circle"></i> Nueva Propiedad
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                
+                <!-- Tabla -->
+                <div class="table-responsive" th:if="${!propiedades.isEmpty()}">
+                    <table class="table table-hover table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo</th>
+                                <th>Inmueble</th>
+                                <th>Derrama</th>
+                                <th>IBI</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="prop : ${propiedades}">
+                                <td th:text="${prop.id}">1</td>
+                                <td>
+                                    <i class="bi bi-car-front" th:if="${prop.tipo == 'Garaje'}"></i>
+                                    <i class="bi bi-box" th:if="${prop.tipo == 'Trastero'}"></i>
+                                    <i class="bi bi-water" th:if="${prop.tipo == 'Piscina'}"></i>
+                                    <span th:text="${prop.tipo}">Garaje</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/inmuebles/{id}(id=${prop.inmueble.id})}" 
+                                       th:text="${prop.inmueble.direccion}">
+                                        Calle Larga, 10
+                                    </a>
+                                </td>
+                                <td th:text="${prop.derrama} + ' €'">50.00 €</td>
+                                <td th:text="${prop.ibi}">100 €/año</td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <!-- Ver -->
+                                        <a th:href="@{/propiedades/{id}(id=${prop.id})}" 
+                                           class="btn btn-sm btn-info" 
+                                           title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        
+                                        <!-- Editar -->
+                                        <a th:href="@{/propiedades/{id}/edit(id=${prop.id})}" 
+                                           class="btn btn-sm btn-warning" 
+                                           title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        
+                                        <!-- Borrar -->
+                                        <form th:action="@{/propiedades/{id}/delete(id=${prop.id})}" 
+                                              method="post" 
+                                              style="display:inline;"
+                                              onsubmit="return confirmarEliminacion('¿Eliminar esta propiedad?');">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Mensaje si no hay datos -->
+                <div th:if="${propiedades.isEmpty()}" class="alert alert-info text-center">
+                    <i class="bi bi-info-circle"></i> No hay propiedades adicionales registradas. 
+                    <a th:href="@{/propiedades/new}">Crear la primera</a>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+</body>
+</html>
