@@ -1,71 +1,67 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org" 
-      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${title}">Listado de Inmuebles</title>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Listado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/custom.css}">
 </head>
 <body>
-    <section th:fragment="section">
+    <!-- Include Navbar -->
+    <div th:replace="~{layout/base :: navbar}"></div>
+
+    <!-- Include Messages -->
+    <div th:replace="~{layout/base :: messages}"></div>
+
+    <!-- Contenido -->
+    <div class="container">
         <div class="card">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">
                     <i class="bi bi-house-door"></i> Listado de Inmuebles
                 </h4>
                 <a th:href="@{/inmuebles/new}" class="btn btn-light">
-                    <i class="bi bi-plus-circle"></i> Nuevo Inmueble
+                    <i class="bi bi-plus-circle"></i> Nuevo
                 </a>
             </div>
             <div class="card-body">
-                
-                <div class="table-responsive" th:if="${!inmuebles.isEmpty()}">
-                    <table class="table table-hover table-striped align-middle">
+                <div th:if="${inmuebles != null and !inmuebles.isEmpty()}" class="table-responsive">
+                    <table class="table table-hover table-striped">
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
                                 <th>Dirección</th>
                                 <th>Tipo</th>
-                                <th>Operación</th>
                                 <th>Precio</th>
-                                <th>Habitaciones</th>
-                                <th>m²</th>
-                                <th class="text-center">Propiedades</th>
-                                <th class="text-center">Acciones</th>
+                                <th>Propiedades</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="inmueble : ${inmuebles}">
                                 <td th:text="${inmueble.id}">1</td>
-                                <td th:text="${inmueble.direccion}">Calle Larga, 10</td>
+                                <td th:text="${inmueble.direccion}">Dirección</td>
                                 <td th:text="${inmueble.tipoVivienda}">Piso</td>
+                                <td th:text="${inmueble.precio} + ' €'">180000 €</td>
                                 <td>
-                                    <span th:if="${inmueble.tipoOperacion == 0}" class="badge bg-success">Venta</span>
-                                    <span th:if="${inmueble.tipoOperacion == 1}" class="badge bg-info">Alquiler</span>
+                                    <span class="badge bg-secondary" 
+                                          th:text="${inmueble.propiedadesAdicionales.size()}">0</span>
                                 </td>
-                                <td th:text="${#numbers.formatDecimal(inmueble.precio, 0, 'COMMA', 2, 'POINT')} + ' €'">180.000 €</td>
-                                <td th:text="${inmueble.numHab}">3</td>
-                                <td th:text="${inmueble.metrosCuadrados} + ' m²'">100 m²</td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary" th:text="${inmueble.propiedadesAdicionales.size()}">0</span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group" role="group">
+                                <td>
+                                    <div class="btn-group">
                                         <a th:href="@{/inmuebles/{id}(id=${inmueble.id})}" 
-                                           class="btn btn-sm btn-info" 
-                                           title="Ver detalles">
+                                           class="btn btn-sm btn-info">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        
                                         <a th:href="@{/inmuebles/{id}/edit(id=${inmueble.id})}" 
-                                           class="btn btn-sm btn-warning" 
-                                           title="Editar">
+                                           class="btn btn-sm btn-warning">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        
                                         <form th:action="@{/inmuebles/{id}/delete(id=${inmueble.id})}" 
-                                              method="post" 
-                                              style="display:inline;"
-                                              onsubmit="return confirmarEliminacion('¿Eliminar este inmueble y todas sus propiedades?');">
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                                              method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                    onclick="return confirmarEliminacion()">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -76,13 +72,15 @@
                     </table>
                 </div>
                 
-                <div th:if="${inmuebles.isEmpty()}" class="alert alert-info text-center">
-                    <i class="bi bi-info-circle"></i> No hay inmuebles registrados. 
-                    <a th:href="@{/inmuebles/new}">Crear el primero</a>
+                <div th:if="${inmuebles == null or inmuebles.isEmpty()}" 
+                     class="alert alert-info text-center">
+                    No hay inmuebles. <a th:href="@{/inmuebles/new}">Crear el primero</a>
                 </div>
-                
             </div>
         </div>
-    </section>
+    </div>
+
+    <!-- Include Scripts -->
+    <div th:replace="~{layout/base :: scripts}"></div>
 </body>
 </html>

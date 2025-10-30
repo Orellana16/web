@@ -1,6 +1,9 @@
 package com.jerezsurinmobiliaria.web.controller;
 
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -20,12 +23,14 @@ public class InmuebleController {
     // ===============================================
     // LISTAR TODOS
     // ===============================================
-    @GetMapping
-    public String list(Model model) {
-        model.addAttribute("inmuebles", inmuebleService.findAll());
-        model.addAttribute("title", "Listado de Inmuebles");
-        return "inmuebles/list";
-    }
+@GetMapping
+@Transactional
+public String list(Model model) {
+    List<Inmueble> inmuebles = inmuebleService.findAll();
+    model.addAttribute("inmuebles", inmuebles);
+    model.addAttribute("title", "Listado de Inmuebles");
+    return "inmuebles/list";
+}
     
     // ===============================================
     // VER DETALLE

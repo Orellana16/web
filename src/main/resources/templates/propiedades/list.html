@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${title}">Listado de Propiedades</title>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Listado Propiedades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/custom.css}">
 </head>
 <body>
-    <section>
+    <div th:replace="~{layout/base :: navbar}"></div>
+    <div th:replace="~{layout/base :: messages}"></div>
+
+    <div class="container">
         <div class="card">
             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">
@@ -24,9 +31,8 @@
             </div>
             <div class="card-body">
                 
-                <!-- Tabla -->
-                <div class="table-responsive" th:if="${!propiedades.isEmpty()}">
-                    <table class="table table-hover table-striped align-middle">
+                <div th:if="${propiedades != null and !propiedades.isEmpty()}" class="table-responsive">
+                    <table class="table table-hover table-striped">
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
@@ -52,25 +58,22 @@
                                         Calle Larga, 10
                                     </a>
                                 </td>
-                                <td th:text="${prop.derrama} + ' €'">50.00 €</td>
+                                <td th:text="${prop.derrama} + ' €'">50 €</td>
                                 <td th:text="${prop.ibi}">100 €/año</td>
                                 <td class="text-center">
-                                    <div class="btn-group" role="group">
-                                        <!-- Ver -->
+                                    <div class="btn-group">
                                         <a th:href="@{/propiedades/{id}(id=${prop.id})}" 
                                            class="btn btn-sm btn-info" 
                                            title="Ver detalles">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         
-                                        <!-- Editar -->
                                         <a th:href="@{/propiedades/{id}/edit(id=${prop.id})}" 
                                            class="btn btn-sm btn-warning" 
                                            title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         
-                                        <!-- Borrar -->
                                         <form th:action="@{/propiedades/{id}/delete(id=${prop.id})}" 
                                               method="post" 
                                               style="display:inline;"
@@ -86,14 +89,16 @@
                     </table>
                 </div>
                 
-                <!-- Mensaje si no hay datos -->
-                <div th:if="${propiedades.isEmpty()}" class="alert alert-info text-center">
+                <div th:if="${propiedades == null or propiedades.isEmpty()}" 
+                     class="alert alert-info text-center">
                     <i class="bi bi-info-circle"></i> No hay propiedades adicionales registradas. 
                     <a th:href="@{/propiedades/new}">Crear la primera</a>
                 </div>
                 
             </div>
         </div>
-    </section>
+    </div>
+
+    <div th:replace="~{layout/base :: scripts}"></div>
 </body>
 </html>
