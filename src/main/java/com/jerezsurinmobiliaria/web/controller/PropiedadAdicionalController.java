@@ -1,5 +1,9 @@
 package com.jerezsurinmobiliaria.web.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +16,9 @@ import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 @RequestMapping("/propiedades")
 @RequiredArgsConstructor
@@ -20,19 +27,61 @@ public class PropiedadAdicionalController {
     private final PropiedadAdicionalService propiedadService;
     private final InmuebleService inmuebleService;
     
-    // ===============================================
-    // LISTAR TODAS
-    // ===============================================
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("propiedades", propiedadService.findAll());
+    public String list(
+            // Paginación y ordenamiento
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            
+            // Filtros
+            @RequestParam(required = false) List<String> tipo,
+            @RequestParam(required = false) Double derramaMin,
+            @RequestParam(required = false) Double derramaMax,
+            @RequestParam(required = false) String direccionInmueble,
+            @RequestParam(required = false) Integer inmuebleId,
+            
+            Model model) {
+        
+        // Crear Pageable con ordenamiento
+        Sort sort = sortDir.equalsIgnoreCase("asc") 
+            ? Sort.by(sortBy).ascending() 
+            : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        // Buscar con filtros
+        Page<PropiedadAdicional> propiedadesPage = propiedadService.buscarConFiltros(
+            tipo, derramaMin, derramaMax, direccionInmueble, inmuebleId, pageable
+        );
+        
+        // Datos para la vista
+        model.addAttribute("propiedades", propiedadesPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", propiedadesPage.getTotalPages());
+        model.addAttribute("totalItems", propiedadesPage.getTotalElements());
+        model.addAttribute("size", size);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
+        
+        // Valores para filtros
+        model.addAttribute("tiposDisponibles", propiedadService.obtenerTipos());
+        model.addAttribute("inmueblesDisponibles", inmuebleService.findAll());
+        Double[] rangoDerrama = propiedadService.obtenerRangoDerrama();
+        model.addAttribute("derramaMinGlobal", rangoDerrama[0]);
+        model.addAttribute("derramaMaxGlobal", rangoDerrama[1]);
+        
+        // Mantener filtros seleccionados
+        model.addAttribute("filtro_tipo", tipo != null ? tipo : new ArrayList<>());
+        model.addAttribute("filtro_derramaMin", derramaMin);
+        model.addAttribute("filtro_derramaMax", derramaMax);
+        model.addAttribute("filtro_direccionInmueble", direccionInmueble);
+        model.addAttribute("filtro_inmuebleId", inmuebleId);
+        
         model.addAttribute("title", "Listado de Propiedades Adicionales");
         return "propiedades/list";
     }
     
-    // ===============================================
-    // VER DETALLE
-    // ===============================================
     @GetMapping("/{id}")
     public String detail(@PathVariable Integer id, Model model, RedirectAttributes flash) {
         PropiedadAdicional propiedad = propiedadService.findById(id);
@@ -47,9 +96,6 @@ public class PropiedadAdicionalController {
         return "propiedades/detail";
     }
     
-    // ===============================================
-    // FORMULARIO CREAR GENÉRICO
-    // ===============================================
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         PropiedadAdicional propiedad = new PropiedadAdicional();
@@ -61,9 +107,6 @@ public class PropiedadAdicionalController {
         return "propiedades/form";
     }
     
-    // ===============================================
-    // FORMULARIO CREAR DESDE INMUEBLE ESPECÍFICO
-    // ===============================================
     @GetMapping("/new/inmueble/{inmuebleId}")
     public String showCreateFormForInmueble(@PathVariable Integer inmuebleId, 
                                            Model model, 
@@ -86,16 +129,11 @@ public class PropiedadAdicionalController {
         return "propiedades/form";
     }
     
-
-    // ===============================================
-    // GUARDAR NUEVA
-    // ===============================================
     @PostMapping
     public String create(@ModelAttribute PropiedadAdicional propiedad,
                         @RequestParam(value = "inmuebleId", required = false) Integer inmuebleId,
                         RedirectAttributes flash) {
         try {
-            // VERIFICACIÓN
             if (inmuebleId == null) {
                 flash.addFlashAttribute("error", "Debe seleccionar un inmueble");
                 return "redirect:/propiedades/new";
@@ -108,10 +146,8 @@ public class PropiedadAdicionalController {
                 return "redirect:/propiedades/new";
             }
             
-            // ASIGNAR INMUEBLE
             propiedad.setInmueble(inmueble);
             
-            // LOG DE DEBUG
             System.out.println("=== CONTROLLER - CREAR ===");
             System.out.println("Inmueble ID: " + inmuebleId);
             System.out.println("Propiedad Inmueble: " + propiedad.getInmueble());
@@ -120,7 +156,7 @@ public class PropiedadAdicionalController {
             
             propiedadService.save(propiedad);
             flash.addFlashAttribute("success", "Propiedad adicional creada exitosamente");
-            return "redirect:/inmuebles/" + inmuebleId;  // ← Redirigir al inmueble
+            return "redirect:/inmuebles/" + inmuebleId;
         } catch (Exception e) {
             e.printStackTrace();
             flash.addFlashAttribute("error", "Error al crear la propiedad: " + e.getMessage());
@@ -128,9 +164,6 @@ public class PropiedadAdicionalController {
         }
     }
     
-    // ===============================================
-    // FORMULARIO EDITAR
-    // ===============================================
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Integer id, Model model, RedirectAttributes flash) {
         PropiedadAdicional propiedad = propiedadService.findById(id);
@@ -147,16 +180,12 @@ public class PropiedadAdicionalController {
         return "propiedades/form";
     }
     
-    // ===============================================
-    // ACTUALIZAR
-    // ===============================================
     @PostMapping("/{id}")
     public String update(@PathVariable Integer id,
                         @ModelAttribute PropiedadAdicional propiedad,
-                        @RequestParam(value = "inmuebleId", required = false) Integer inmuebleId,  // ← required = false
+                        @RequestParam(value = "inmuebleId", required = false) Integer inmuebleId,
                         RedirectAttributes flash) {
         try {
-            // VERIFICACIÓN
             if (inmuebleId == null) {
                 flash.addFlashAttribute("error", "Debe seleccionar un inmueble");
                 return "redirect:/propiedades/" + id + "/edit";
@@ -182,9 +211,6 @@ public class PropiedadAdicionalController {
         }
     }
     
-    // ===============================================
-    // ELIMINAR
-    // ===============================================
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Integer id, 
                         @RequestParam(value = "returnToInmueble", required = false) Integer inmuebleId,
@@ -197,13 +223,11 @@ public class PropiedadAdicionalController {
                 return "redirect:/propiedades";
             }
             
-            // Guardar ID del inmueble para redirigir
             Integer idInmueble = propiedad.getInmueble().getId();
             
             propiedadService.deleteById(id);
             flash.addFlashAttribute("success", "Propiedad adicional eliminada exitosamente");
             
-            // Si viene de un inmueble, redirigir al inmueble
             if (inmuebleId != null) {
                 return "redirect:/inmuebles/" + inmuebleId;
             } else if (idInmueble != null) {
@@ -218,9 +242,6 @@ public class PropiedadAdicionalController {
         }
     }
     
-    // ===============================================
-    // LISTAR PROPIEDADES DE UN INMUEBLE ESPECÍFICO
-    // ===============================================
     @GetMapping("/inmueble/{inmuebleId}")
     public String listByInmueble(@PathVariable Integer inmuebleId, 
                                  Model model, 

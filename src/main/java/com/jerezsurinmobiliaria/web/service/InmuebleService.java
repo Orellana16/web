@@ -3,6 +3,8 @@ package com.jerezsurinmobiliaria.web.service;
 import com.jerezsurinmobiliaria.web.model.Inmueble;
 import com.jerezsurinmobiliaria.web.repository.InmuebleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,85 +16,88 @@ public class InmuebleService {
     
     private final InmuebleRepository inmuebleRepository;
     
-    /**
-     * Obtener todos los inmuebles
-     */
     @Transactional(readOnly = true)
     public List<Inmueble> findAll() {
         return inmuebleRepository.findAll();
     }
     
-    /**
-     * Buscar inmueble por ID
-     * @return Inmueble o null si no existe
-     */
     @Transactional(readOnly = true)
     public Inmueble findById(Integer id) {
         return inmuebleRepository.findById(id).orElse(null);
     }
     
-    /**
-     * Guardar o actualizar inmueble
-     */
     @Transactional
     public Inmueble save(Inmueble inmueble) {
         return inmuebleRepository.save(inmueble);
     }
     
-    /**
-     * Eliminar inmueble por ID
-     */
     @Transactional
     public void deleteById(Integer id) {
         inmuebleRepository.deleteById(id);
     }
     
-    // ===============================================
-    // MÉTODOS ADICIONALES ÚTILES
-    // ===============================================
-    
-    /**
-     * Obtener solo inmuebles válidos
-     */
+    // ⭐ BÚSQUEDA CON FILTROS DINÁMICOS
     @Transactional(readOnly = true)
-    public List<Inmueble> findAllValidos() {
-        return inmuebleRepository.findByValido((byte) 1);
+    public Page<Inmueble> buscarConFiltros(
+            String direccion,
+            List<String> tipoVivienda,
+            List<Byte> tipoOperacion,
+            Double precioMin,
+            Double precioMax,
+            Integer numHabMin,
+            Integer numHabMax,
+            Double metrosMin,
+            Double metrosMax,
+            List<String> comunidad,
+            List<String> estado,
+            Byte valido,
+            Pageable pageable) {
+        
+        return inmuebleRepository.buscarConFiltros(
+            direccion, tipoVivienda, tipoOperacion, precioMin, precioMax,
+            numHabMin, numHabMax, metrosMin, metrosMax, comunidad, estado, valido,
+            pageable
+        );
     }
     
-    /**
-     * Buscar por tipo de operación
-     * @param tipo 0=Venta, 1=Alquiler
-     */
+    // ⭐ OBTENER VALORES ÚNICOS PARA FILTROS
     @Transactional(readOnly = true)
-    public List<Inmueble> findByTipoOperacion(Byte tipo) {
-        return inmuebleRepository.findByTipoOperacion(tipo);
+    public List<String> obtenerTiposVivienda() {
+        return inmuebleRepository.findDistinctTipoVivienda();
     }
     
-    /**
-     * Verificar si existe un inmueble
-     */
     @Transactional(readOnly = true)
-    public boolean existsById(Integer id) {
-        return inmuebleRepository.existsById(id);
+    public List<String> obtenerComunidades() {
+        return inmuebleRepository.findDistinctComunidad();
     }
     
-    /**
-     * Contar total de inmuebles
-     */
     @Transactional(readOnly = true)
-    public long count() {
+    public List<String> obtenerEstados() {
+        return inmuebleRepository.findDistinctEstado();
+    }
+    
+    @Transactional(readOnly = true)
+    public Double[] obtenerRangoPrecio() {
+        Object[] rango = inmuebleRepository.obtenerRangoPrecio();
+        if (rango != null && rango.length == 2) {
+            return new Double[]{(Double) rango[0], (Double) rango[1]};
+        }
+        return new Double[]{0.0, 1000000.0};
+    }
+    
+    // ESTADÍSTICAS
+    @Transactional(readOnly = true)
+    public Long contarInmuebles() {
         return inmuebleRepository.count();
     }
     
-    /**
-     * Soft delete (marcar como no válido en lugar de eliminar)
-     */
-    @Transactional
-    public void marcarComoNoValido(Integer id) {
-        Inmueble inmueble = findById(id);
-        if (inmueble != null) {
-            inmueble.setValido((byte) 0);
-            save(inmueble);
-        }
+    @Transactional(readOnly = true)
+    public Double calcularPrecioPromedio() {
+        return inmuebleRepository.calcularPrecioPromedio((byte) 1);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<Inmueble> findTop5Caros() {
+        return inmuebleRepository.findTop5ByValidoOrderByPrecioDesc((byte) 1);
     }
 }

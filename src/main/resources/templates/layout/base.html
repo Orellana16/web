@@ -5,19 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title} ?: 'Panel Administración'">Panel</title>
     
-    <link rel="icon" type="image/x-icon" th:href="@{/img/favicon.png}">
+    <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
     
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS - ORDEN IMPORTANTE -->
     <link rel="stylesheet" th:href="@{/css/custom.css}">
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/filters.css}">
+    <link rel="stylesheet" th:href="@{/css/tables.css}">
+    <link rel="stylesheet" th:href="@{/css/cards.css}">
 </head>
 <body>
     <!-- Navbar Fragment -->
-    <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4">
+    <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark navbar-custom">
         <div class="container-fluid">
             <a class="navbar-brand" th:href="@{/inmuebles}">
                 <img th:src="@{/img/Final2.png}" alt="Logo" onerror="this.style.display='none'">
@@ -44,7 +54,7 @@
     </nav>
 
     <!-- Messages Fragment -->
-    <div th:fragment="messages" class="container">
+    <div th:fragment="messages" class="container mt-3">
         <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
             <i class="bi bi-check-circle-fill"></i> <span th:text="${success}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

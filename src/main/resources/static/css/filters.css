@@ -1,0 +1,200 @@
+/* ============================================
+   PANEL DE FILTROS
+   ============================================ */
+
+.filtros-container {
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+    position: sticky;
+    top: 80px;
+    padding-right: 0.5rem;
+}
+
+.filtros-panel {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.filtros-panel h5 {
+    color: var(--color-text-primary);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--color-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filtros-panel h5 i {
+    color: var(--color-primary);
+}
+
+/* ========== LABELS DE FILTROS ========== */
+
+.filtros-panel .form-label {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filtros-panel .form-label i {
+    color: var(--color-primary);
+    font-size: 1rem;
+}
+
+/* ========== INPUTS Y SELECTS ========== */
+
+.filtros-panel .form-control,
+.filtros-panel .form-select {
+    border-radius: var(--border-radius-md);
+    border: 1px solid #ced4da;
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.filtros-panel .form-control:focus,
+.filtros-panel .form-select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(4, 59, 137, 0.15);
+}
+
+/* ========== CHECKBOXES ========== */
+
+.filtros-panel .form-check {
+    padding-left: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.filtros-panel .form-check-input {
+    cursor: pointer;
+    margin-top: 0.25rem;
+}
+
+.filtros-panel .form-check-input:checked {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.filtros-panel .form-check-label {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    transition: color var(--transition-fast);
+}
+
+.filtros-panel .form-check-label:hover {
+    color: var(--color-primary);
+}
+
+/* ========== BOTONES DE FILTROS ========== */
+
+.filtros-panel .btn {
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
+    transition: all var(--transition-normal);
+}
+
+.filtros-panel .btn-primary {
+    background-color: var(--color-primary);
+    border: none;
+}
+
+.filtros-panel .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+}
+
+.filtros-panel .btn-success {
+    background-color: var(--color-success);
+    border: none;
+}
+
+.filtros-panel .btn-success:hover {
+    background-color: var(--color-success-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-success);
+}
+
+.filtros-panel .btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.filtros-panel .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* ========== BADGES DE FILTROS ACTIVOS ========== */
+
+.filter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: var(--color-primary);
+    color: white;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--border-radius-pill);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-badge.success {
+    background-color: var(--color-success);
+}
+
+.filter-badge i {
+    font-size: 0.875rem;
+}
+
+/* ========== SCROLL DEL PANEL ========== */
+
+.filtros-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filtros-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.filtros-container::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: var(--border-radius-pill);
+}
+
+/* ========== SEPARADORES ========== */
+
+.filtros-panel .mb-3:not(:last-child) {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 768px) {
+    .filtros-container {
+        height: auto;
+        position: relative;
+        top: 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filtros-panel {
+        padding: 1rem;
+    }
+}
