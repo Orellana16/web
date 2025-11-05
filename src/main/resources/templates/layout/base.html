@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:fragment="head(pageTitle)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title} ?: 'Panel Administración'">Panel</title>
+    <title th:text="${pageTitle} ?: 'Panel Administración'">Panel</title>
     
     <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
     
@@ -24,6 +24,7 @@
     <link rel="stylesheet" th:href="@{/css/filters.css}">
     <link rel="stylesheet" th:href="@{/css/tables.css}">
     <link rel="stylesheet" th:href="@{/css/cards.css}">
+    <link rel="stylesheet" th:href="@{/css/dark-theme.css}">
 </head>
 <body>
     <!-- Navbar Fragment -->
@@ -47,6 +48,16 @@
                         <a class="nav-link" th:href="@{/propiedades}">
                             <i class="bi bi-boxes"></i> Propiedades
                         </a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center ms-lg-3">
+                        <div class="theme-switch-wrapper">
+                            <i class="bi bi-sun-fill"></i>
+                            <label class="theme-switch" for="theme-toggle">
+                                <input type="checkbox" id="theme-toggle">
+                                <span class="slider"></span>
+                            </label>
+                            <i class="bi bi-moon-fill"></i>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -73,6 +84,7 @@
                 return confirm(mensaje || '¿Está seguro de que desea eliminar este elemento?');
             }
         </script>
+        <script th:src="@{/js/theme-switcher.js}"></script>
     </div>
 </body>
 </html>

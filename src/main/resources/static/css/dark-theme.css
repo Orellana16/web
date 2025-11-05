@@ -1,0 +1,140 @@
+/* ============================================
+   MODO OSCURO - DARK THEME
+   ============================================ */
+
+[data-bs-theme="dark"] {
+    /* --- Fondos --- */
+    --color-bg-body: #121212;
+    --color-bg-card: #1e1e1e;
+    --color-bg-header: #2a2a2a;
+    --color-bg-hover: rgba(255, 255, 255, 0.05);
+    
+    /* --- Textos --- */
+    --color-text-primary: #e0e0e0;
+    --color-text-secondary: #a0a0a0;
+    
+    /* --- Bordes --- */
+    --color-border: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Estilos Generales --- */
+[data-bs-theme="dark"] body {
+    background-color: var(--color-bg-body);
+    color: var(--color-text-primary);
+}
+
+[data-bs-theme="dark"] h1,
+[data-bs-theme="dark"] h2,
+[data-bs-theme="dark"] h3,
+[data-bs-theme="dark"] h4,
+[data-bs-theme="dark"] h5,
+[data-bs-theme="dark"] h6 {
+    color: var(--color-text-primary);
+}
+
+/* --- Cards --- */
+[data-bs-theme="dark"] .card {
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+}
+
+[data-bs-theme="dark"] .card-header {
+    background-color: var(--color-bg-header);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* --- Panel de Filtros --- */
+[data-bs-theme="dark"] .filtros-panel {
+    background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+    border: 1px solid var(--color-border);
+}
+
+[data-bs-theme="dark"] .filtros-panel h5 {
+    border-bottom-color: var(--color-primary);
+}
+
+/* --- Tablas --- */
+[data-bs-theme="dark"] .table {
+    color: var(--color-text-primary);
+}
+
+[data-bs-theme="dark"] .table-hover tbody tr:hover {
+    background-color: var(--color-bg-hover);
+}
+
+[data-bs-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* --- Formularios --- */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #2a2a2a;
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+}
+
+[data-bs-theme="dark"] .form-control::placeholder {
+    color: var(--color-text-secondary);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: #333;
+    border-color: var(--color-primary);
+}
+
+[data-bs-theme="dark"] .form-check-label {
+    color: var(--color-text-primary);
+}
+
+/* --- Botón de Tema --- */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+}
+
+.theme-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 48px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.slider {
+    background-color: rgba(255, 255, 255, 0.3);
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: var(--transition-normal);
+    border-radius: 24px;
+}
+
+.slider:before {
+    background-color: #fff;
+    bottom: 4px;
+    content: "";
+    height: 16px;
+    left: 4px;
+    position: absolute;
+    transition: var(--transition-normal);
+    width: 16px;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--color-success);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
