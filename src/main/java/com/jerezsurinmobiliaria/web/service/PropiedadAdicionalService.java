@@ -1,6 +1,5 @@
 package com.jerezsurinmobiliaria.web.service;
 
-import com.jerezsurinmobiliaria.web.model.Inmueble;
 import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
 import com.jerezsurinmobiliaria.web.repository.PropiedadAdicionalRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,7 @@ public class PropiedadAdicionalService {
         return propiedadAdicionalRepository.findById(id).orElse(null);
     }
     
+    //LOGS PARA GUARDAR PROPIEDAD ADICIONAL
     @Transactional
     public PropiedadAdicional save(PropiedadAdicional propiedadAdicional) {
         System.out.println("=== GUARDANDO PROPIEDAD ===");

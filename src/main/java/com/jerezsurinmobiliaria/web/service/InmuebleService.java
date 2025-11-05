@@ -36,7 +36,7 @@ public class InmuebleService {
         inmuebleRepository.deleteById(id);
     }
     
-    // ⭐ BÚSQUEDA CON FILTROS DINÁMICOS
+    // BÚSQUEDA CON FILTROS DINÁMICOS
     @Transactional(readOnly = true)
     public Page<Inmueble> buscarConFiltros(
             String direccion,

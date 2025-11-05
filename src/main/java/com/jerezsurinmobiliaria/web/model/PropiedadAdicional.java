@@ -28,7 +28,7 @@ public class PropiedadAdicional {
     private String ibi;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Inmueble_id", nullable = false)  // ← EXACTAMENTE ASÍ
+    @JoinColumn(name = "Inmueble_id", nullable = false)
     @ToString.Exclude
     private Inmueble inmueble;
 

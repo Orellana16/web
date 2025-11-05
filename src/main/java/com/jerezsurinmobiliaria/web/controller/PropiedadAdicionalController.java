@@ -85,12 +85,10 @@ public class PropiedadAdicionalController {
     @GetMapping("/{id}")
     public String detail(@PathVariable Integer id, Model model, RedirectAttributes flash) {
         PropiedadAdicional propiedad = propiedadService.findById(id);
-        
         if (propiedad == null) {
             flash.addFlashAttribute("error", "La propiedad adicional no existe");
             return "redirect:/propiedades";
         }
-        
         model.addAttribute("propiedad", propiedad);
         model.addAttribute("title", "Detalle de la Propiedad Adicional");
         return "propiedades/detail";
@@ -108,11 +106,9 @@ public class PropiedadAdicionalController {
     }
     
     @GetMapping("/new/inmueble/{inmuebleId}")
-    public String showCreateFormForInmueble(@PathVariable Integer inmuebleId, 
-                                           Model model, 
-                                           RedirectAttributes flash) {
+    public String showCreateFormForInmueble(@PathVariable Integer inmuebleId, Model model, RedirectAttributes flash) {
         Inmueble inmueble = inmuebleService.findById(inmuebleId);
-        
+    
         if (inmueble == null) {
             flash.addFlashAttribute("error", "El inmueble no existe");
             return "redirect:/inmuebles";
@@ -130,9 +126,7 @@ public class PropiedadAdicionalController {
     }
     
     @PostMapping
-    public String create(@ModelAttribute PropiedadAdicional propiedad,
-                        @RequestParam(value = "inmuebleId", required = false) Integer inmuebleId,
-                        RedirectAttributes flash) {
+    public String create(@ModelAttribute PropiedadAdicional propiedad, @RequestParam(value = "inmuebleId", required = false) Integer inmuebleId, RedirectAttributes flash) {
         try {
             if (inmuebleId == null) {
                 flash.addFlashAttribute("error", "Debe seleccionar un inmueble");
@@ -148,6 +142,7 @@ public class PropiedadAdicionalController {
             
             propiedad.setInmueble(inmueble);
             
+            //LOG
             System.out.println("=== CONTROLLER - CREAR ===");
             System.out.println("Inmueble ID: " + inmuebleId);
             System.out.println("Propiedad Inmueble: " + propiedad.getInmueble());

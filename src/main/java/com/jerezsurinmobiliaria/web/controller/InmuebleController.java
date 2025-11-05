@@ -25,12 +25,16 @@ public class InmuebleController {
     
     private final InmuebleService inmuebleService;
     
+
+    //Listar Inmuebles con filtros y paginación por defecto
     @GetMapping
     @Transactional
     public String list(
-            // Paginación y ordenamiento
+            // Paginación
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
+
+            // Ordenamiento
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir,
             
@@ -97,8 +101,7 @@ public class InmuebleController {
         return "inmuebles/list";
     }
     
-    // ... resto de métodos (detail, create, update, delete) sin cambios
-    
+    //Abrir detalles de Inmueble
     @GetMapping("/{id}")
     public String detail(@PathVariable Integer id, Model model, RedirectAttributes flash) {
         Inmueble inmueble = inmuebleService.findById(id);
@@ -111,6 +114,7 @@ public class InmuebleController {
         return "inmuebles/detail";
     }
     
+    //Crer nuevo inmueble
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         Inmueble inmueble = new Inmueble();
@@ -122,6 +126,7 @@ public class InmuebleController {
         return "inmuebles/form";
     }
     
+    //Funcion para crear el Inmueble
     @PostMapping
     public String create(@ModelAttribute Inmueble inmueble, RedirectAttributes flash) {
         try {
@@ -134,6 +139,7 @@ public class InmuebleController {
         }
     }
     
+    //Editar un Inmueble
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Integer id, Model model, RedirectAttributes flash) {
         Inmueble inmueble = inmuebleService.findById(id);
@@ -147,6 +153,7 @@ public class InmuebleController {
         return "inmuebles/form";
     }
     
+    //Funcion para actualizar el Inmueble
     @PostMapping("/{id}")
     public String update(@PathVariable Integer id, @ModelAttribute Inmueble inmueble, RedirectAttributes flash) {
         try {
@@ -160,6 +167,7 @@ public class InmuebleController {
         }
     }
     
+    //Eliminar un Inmueble
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Integer id, RedirectAttributes flash) {
         try {

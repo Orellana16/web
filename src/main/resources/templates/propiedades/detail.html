@@ -45,10 +45,10 @@
                             <i class="bi bi-car-front" th:if="${propiedad.tipo == 'Garaje'}"></i>
                             <i class="bi bi-box" th:if="${propiedad.tipo == 'Trastero'}"></i>
                             <i class="bi bi-water" th:if="${propiedad.tipo == 'Piscina'}"></i>
-                            <span th:text="${propiedad.tipo}">Garaje</span>
+                            <span th:text="${propiedad.tipo}"></span>
                         </p>
-                        <p><strong>Derrama Mensual:</strong> <span th:text="${propiedad.derrama} + ' €'">50 €</span></p>
-                        <p><strong>IBI Anual:</strong> <span th:text="${propiedad.ibi}">100 €/año</span></p>
+                        <p><strong>Derrama Mensual:</strong> <span th:text="${propiedad.derrama} + ' €'"></span></p>
+                        <p><strong>IBI Anual:</strong> <span th:text="${propiedad.ibi}"></span></p>
                     </div>
                     <div class="col-md-6">
                         <h5 class="mb-3">Inmueble Asociado</h5>
@@ -56,19 +56,19 @@
                             <div class="card-body">
                                 <p class="mb-2">
                                     <strong>ID:</strong> 
-                                    <span th:text="${propiedad.inmueble.id}">1</span>
+                                    <span th:text="${propiedad.inmueble.id}"></span>
                                 </p>
                                 <p class="mb-2">
                                     <strong>Dirección:</strong> 
-                                    <span th:text="${propiedad.inmueble.direccion}">Calle Larga, 10</span>
+                                    <span th:text="${propiedad.inmueble.direccion}"></span>
                                 </p>
                                 <p class="mb-2">
                                     <strong>Tipo:</strong> 
-                                    <span th:text="${propiedad.inmueble.tipoVivienda}">Piso</span>
+                                    <span th:text="${propiedad.inmueble.tipoVivienda}"></span>
                                 </p>
                                 <p class="mb-0">
                                     <strong>Precio:</strong> 
-                                    <span th:text="${propiedad.inmueble.precio} + ' €'">180.000 €</span>
+                                    <span th:text="${propiedad.inmueble.precio} + ' €'"></span>
                                 </p>
                                 <hr>
                                 <a th:href="@{/inmuebles/{id}(id=${propiedad.inmueble.id})}" 
