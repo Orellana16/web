@@ -26,6 +26,7 @@ public class PropiedadAdicionalService {
         return propiedadAdicionalRepository.findById(id).orElse(null);
     }
     
+    //LOGS PARA GUARDAR PROPIEDAD ADICIONAL
     @Transactional
     public PropiedadAdicional save(PropiedadAdicional propiedadAdicional) {
         System.out.println("=== GUARDANDO PROPIEDAD ===");
