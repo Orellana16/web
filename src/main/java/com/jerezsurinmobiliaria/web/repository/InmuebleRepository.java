@@ -75,17 +75,9 @@ public interface InmuebleRepository extends JpaRepository<Inmueble, Integer> {
     Long countByValido(Byte valido);
     Long countByTipoOperacion(Byte tipoOperacion);
     
-    @Query("SELECT AVG(i.precio) FROM Inmueble i WHERE i.valido = :valido")
-    Double calcularPrecioPromedio(@Param("valido") Byte valido);
-    
-    @Query("SELECT i.tipoVivienda, COUNT(i) FROM Inmueble i WHERE i.valido = 1 GROUP BY i.tipoVivienda")
-    List<Object[]> contarPorTipoVivienda();
-    
     // ========================================================================
     // TOP INMUEBLES
     // ========================================================================
     
-    List<Inmueble> findTop5ByValidoOrderByPrecioDesc(Byte valido);
-    Inmueble findFirstByOrderByPrecioDesc();
-    Inmueble findFirstByOrderByPrecioAsc();
+    List<Inmueble> findTop3ByValidoOrderByPrecioAsc(Byte valido);
 }

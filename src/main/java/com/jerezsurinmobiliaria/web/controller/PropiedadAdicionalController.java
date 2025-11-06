@@ -241,21 +241,4 @@ public class PropiedadAdicionalController {
             return "redirect:/propiedades";
         }
     }
-    
-    @GetMapping("/inmueble/{inmuebleId}")
-    public String listByInmueble(@PathVariable Integer inmuebleId, 
-                                 Model model, 
-                                 RedirectAttributes flash) {
-        Inmueble inmueble = inmuebleService.findById(inmuebleId);
-        
-        if (inmueble == null) {
-            flash.addFlashAttribute("error", "El inmueble no existe");
-            return "redirect:/inmuebles";
-        }
-        
-        model.addAttribute("propiedades", propiedadService.findByInmuebleId(inmuebleId));
-        model.addAttribute("inmueble", inmueble);
-        model.addAttribute("title", "Propiedades de " + inmueble.getDireccion());
-        return "propiedades/list";
-    }
 }

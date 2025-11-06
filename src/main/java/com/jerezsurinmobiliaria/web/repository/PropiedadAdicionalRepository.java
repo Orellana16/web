@@ -56,40 +56,13 @@ public interface PropiedadAdicionalRepository extends JpaRepository<PropiedadAdi
     Object[] obtenerRangoDerrama();
     
     // ========================================================================
-    // MÉTODOS PARA BORRAR (REQUERIMIENTO II.2)
+    // MÉTODOS PARA BORRAR
     // ========================================================================
     
     @Transactional
     @Modifying
     @Query("DELETE FROM PropiedadAdicional p WHERE p.inmueble.id = :inmuebleId")
     void deleteByInmuebleId(@Param("inmuebleId") Integer inmuebleId);
-    
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM PropiedadAdicional p WHERE p.tipo = :tipo")
-    void deleteByTipo(@Param("tipo") String tipo);
-    
-    @Transactional
-    void deleteByDerramaGreaterThan(Double derrama);
-    
-    // ========================================================================
-    // BÚSQUEDA CON FILTROS (REQUERIMIENTO II.2)
-    // ========================================================================
-    
-    List<PropiedadAdicional> findByTipoAndDerramaLessThanEqual(String tipo, Double maxDerrama);
-    
-    // ========================================================================
-    // CONSULTAS PERSONALIZADAS @Query (REQUERIMIENTO II.2)
-    // ========================================================================
-    
-    @Query("SELECT p FROM PropiedadAdicional p WHERE p.derrama BETWEEN :min AND :max ORDER BY p.derrama ASC")
-    List<PropiedadAdicional> findByRangoDerrama(@Param("min") Double min, @Param("max") Double max);
-    
-    @Query("SELECT SUM(p.derrama) FROM PropiedadAdicional p WHERE p.inmueble.id = :inmuebleId")
-    Double calcularDerramaTotalPorInmueble(@Param("inmuebleId") Integer inmuebleId);
-    
-    @Query("SELECT p.tipo, COUNT(p) FROM PropiedadAdicional p GROUP BY p.tipo")
-    List<Object[]> contarPorTipo();
     
     // ========================================================================
     // CONTEO
@@ -105,12 +78,4 @@ public interface PropiedadAdicionalRepository extends JpaRepository<PropiedadAdi
     List<PropiedadAdicional> findAllByOrderByDerramaAsc();
     List<PropiedadAdicional> findAllByOrderByDerramaDesc();
     List<PropiedadAdicional> findByTipoOrderByDerramaAsc(String tipo);
-    
-    // ========================================================================
-    // AGREGACIÓN
-    // ========================================================================
-    
-    List<PropiedadAdicional> findTop10ByOrderByDerramaDesc();
-    PropiedadAdicional findFirstByOrderByDerramaDesc();
-    PropiedadAdicional findFirstByOrderByDerramaAsc();
 }

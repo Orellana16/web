@@ -1,6 +1,5 @@
 package com.jerezsurinmobiliaria.web.service;
 
-import com.jerezsurinmobiliaria.web.model.Inmueble;
 import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
 import com.jerezsurinmobiliaria.web.repository.PropiedadAdicionalRepository;
 import lombok.RequiredArgsConstructor;
@@ -164,15 +163,5 @@ public class PropiedadAdicionalService {
     @Transactional(readOnly = true)
     public Long contarTodas() {
         return propiedadAdicionalRepository.count();
-    }
-    
-    @Transactional(readOnly = true)
-    public List<PropiedadAdicional> findTop10MasCaras() {
-        return propiedadAdicionalRepository.findTop10ByOrderByDerramaDesc();
-    }
-    
-    @Transactional(readOnly = true)
-    public List<Object[]> contarPorTipo() {
-        return propiedadAdicionalRepository.contarPorTipo();
     }
 }

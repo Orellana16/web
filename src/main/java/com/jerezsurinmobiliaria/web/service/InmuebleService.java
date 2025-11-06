@@ -92,12 +92,7 @@ public class InmuebleService {
     }
     
     @Transactional(readOnly = true)
-    public Double calcularPrecioPromedio() {
-        return inmuebleRepository.calcularPrecioPromedio((byte) 1);
-    }
-    
-    @Transactional(readOnly = true)
     public List<Inmueble> findTop5Caros() {
-        return inmuebleRepository.findTop5ByValidoOrderByPrecioDesc((byte) 1);
+        return inmuebleRepository.findTop3ByValidoOrderByPrecioAsc((byte) 1);
     }
 }
