@@ -6,11 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "Inmuebles")  // ← CON MAYÚSCULA (como en SQL)
+@Table(name = "Inmuebles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,10 +21,10 @@ public class Inmueble {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "Direccion", nullable = false, length = 45)  // ← CON MAYÚSCULA
+    @Column(name = "Direccion", nullable = false, length = 45)
     private String direccion;
 
-    @Column(name = "Tipo_Operacion", nullable = false)  // ← CON MAYÚSCULAS Y GUIÓN BAJO
+    @Column(name = "Tipo_Operacion", nullable = false)
     private Byte tipoOperacion;
 
     @Column(name = "Precio", nullable = false)
@@ -66,11 +66,35 @@ public class Inmueble {
     @Column(name = "Tipo_Vivienda", nullable = false, length = 45)
     private String tipoVivienda;
 
+    // =========================================================================
+    // RELACIONES (Set en lugar de List para evitar MultipleBagFetchException)
+    // =========================================================================
+    
     @OneToMany(mappedBy = "inmueble", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<PropiedadAdicional> propiedadesAdicionales = new ArrayList<>();
+    private Set<PropiedadAdicional> propiedadesAdicionales = new HashSet<>();
 
-    // Métodos helper
+    @OneToMany(mappedBy = "inmueble", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private Set<Cita> citas = new HashSet<>();
+
+    @OneToMany(mappedBy = "inmueble", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private Set<VendedorInmueble> vendedorInmuebles = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "Inmuebles_has_Interesados",
+        joinColumns = @JoinColumn(name = "Inmueble_id"),
+        inverseJoinColumns = @JoinColumn(name = "Interesado_id")
+    )
+    @ToString.Exclude
+    private Set<Interesado> interesados = new HashSet<>();
+
+    // =========================================================================
+    // MÉTODOS HELPER PARA PROPIEDADES ADICIONALES
+    // =========================================================================
+    
     public void addPropiedadAdicional(PropiedadAdicional propiedad) {
         propiedadesAdicionales.add(propiedad);
         propiedad.setInmueble(this);
@@ -79,5 +103,37 @@ public class Inmueble {
     public void removePropiedadAdicional(PropiedadAdicional propiedad) {
         propiedadesAdicionales.remove(propiedad);
         propiedad.setInmueble(null);
+    }
+
+    // =========================================================================
+    // MÉTODOS HELPER PARA CONTADORES (solo funcionan dentro de transacción)
+    // =========================================================================
+    
+    /**
+     * ⚠️ IMPORTANTE: Solo llamar dentro de @Transactional
+     */
+    public int getCantidadCitas() {
+        return citas != null ? citas.size() : 0;
+    }
+
+    /**
+     * ⚠️ IMPORTANTE: Solo llamar dentro de @Transactional
+     */
+    public int getCantidadInteresados() {
+        return interesados != null ? interesados.size() : 0;
+    }
+
+    /**
+     * ⚠️ IMPORTANTE: Solo llamar dentro de @Transactional
+     */
+    public int getCantidadVendedores() {
+        return vendedorInmuebles != null ? vendedorInmuebles.size() : 0;
+    }
+    
+    /**
+     * ⚠️ IMPORTANTE: Solo llamar dentro de @Transactional
+     */
+    public int getCantidadPropiedadesAdicionales() {
+        return propiedadesAdicionales != null ? propiedadesAdicionales.size() : 0;
     }
 }

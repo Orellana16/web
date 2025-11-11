@@ -1,22 +1,27 @@
 package com.jerezsurinmobiliaria.web.controller;
 
+import com.jerezsurinmobiliaria.web.dto.InmuebleListDTO;
+import com.jerezsurinmobiliaria.web.model.Cita;
+import com.jerezsurinmobiliaria.web.model.Inmueble;
+import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
+import com.jerezsurinmobiliaria.web.model.VendedorInmueble;
+import com.jerezsurinmobiliaria.web.service.CitaService;
+import com.jerezsurinmobiliaria.web.service.InmuebleService;
+import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
+import com.jerezsurinmobiliaria.web.service.VendedorInmuebleService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.jerezsurinmobiliaria.web.model.Inmueble;
-import com.jerezsurinmobiliaria.web.service.InmuebleService;
-
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/inmuebles")
@@ -24,11 +29,17 @@ import java.util.ArrayList;
 public class InmuebleController {
     
     private final InmuebleService inmuebleService;
+    private final CitaService citaService;
+    private final VendedorInmuebleService vendedorInmuebleService;
+    private final PropiedadAdicionalService propiedadAdicionalService;
     
 
-    //Listar Inmuebles con filtros y paginación por defecto
+    /**
+     * Muestra el listado de inmuebles.
+     * Utiliza un DTO (InmuebleListDTO) para evitar LazyInitializationException en la vista.
+     */
     @GetMapping
-    @Transactional
+    @Transactional(readOnly = true)
     public String list(
             // Paginación
             @RequestParam(defaultValue = "0") int page,
@@ -59,15 +70,15 @@ public class InmuebleController {
             : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         
-        // Buscar con filtros
-        Page<Inmueble> inmueblesPage = inmuebleService.buscarConFiltros(
+        // ⭐ Se busca usando el método que devuelve DTOs
+        Page<InmuebleListDTO> inmueblesPage = inmuebleService.buscarConFiltros(
             direccion, tipoVivienda, tipoOperacion, precioMin, precioMax,
             numHabMin, numHabMax, metrosMin, metrosMax, comunidad, estado,
             (byte) 1, // Solo válidos
             pageable
         );
         
-        // Datos para la vista
+        // Datos para la vista (ahora son DTOs, pero la vista funciona igual)
         model.addAttribute("inmuebles", inmueblesPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", inmueblesPage.getTotalPages());
@@ -76,7 +87,7 @@ public class InmuebleController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortDir", sortDir);
         
-        // Valores para filtros
+        // Valores para los desplegables de filtros
         model.addAttribute("tiposVivienda", inmuebleService.obtenerTiposVivienda());
         model.addAttribute("comunidades", inmuebleService.obtenerComunidades());
         model.addAttribute("estados", inmuebleService.obtenerEstados());
@@ -84,7 +95,7 @@ public class InmuebleController {
         model.addAttribute("precioMinGlobal", rangoPrecio[0]);
         model.addAttribute("precioMaxGlobal", rangoPrecio[1]);
         
-        // Mantener filtros seleccionados
+        // Mantener los valores de los filtros seleccionados
         model.addAttribute("filtro_direccion", direccion);
         model.addAttribute("filtro_tipoVivienda", tipoVivienda != null ? tipoVivienda : new ArrayList<>());
         model.addAttribute("filtro_tipoOperacion", tipoOperacion != null ? tipoOperacion : new ArrayList<>());
@@ -101,20 +112,44 @@ public class InmuebleController {
         return "inmuebles/list";
     }
     
-    //Abrir detalles de Inmueble
+    /**
+     * Muestra la vista de detalle.
+     * Carga cada colección de datos por separado para evitar errores y ser eficiente.
+     */
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     public String detail(@PathVariable Integer id, Model model, RedirectAttributes flash) {
+        
+        // 1. Cargar la entidad principal
         Inmueble inmueble = inmuebleService.findById(id);
+        
         if (inmueble == null) {
             flash.addFlashAttribute("error", "El inmueble no existe");
             return "redirect:/inmuebles";
         }
+        
+        // 2. Cargar cada colección de datos por separado
+        List<Cita> citas = citaService.findByInmuebleId(id);
+        List<VendedorInmueble> vendedores = vendedorInmuebleService.findByInmuebleId(id);
+        List<PropiedadAdicional> propiedadesAdicionales = propiedadAdicionalService.findByInmuebleId(id);
+        
+        // 3. Obtener conteo de interesados con una query eficiente
+        Long cantidadInteresados = inmuebleService.countInteresados(id);
+        
+        // 4. Pasar todos los datos a la vista
         model.addAttribute("inmueble", inmueble);
+        model.addAttribute("citas", citas);
+        model.addAttribute("vendedores", vendedores);
+        model.addAttribute("propiedadesAdicionales", propiedadesAdicionales);
+        model.addAttribute("cantidadInteresados", cantidadInteresados);
+        
         model.addAttribute("title", "Detalle del Inmueble");
         return "inmuebles/detail";
     }
     
-    //Crer nuevo inmueble
+    /**
+     * Muestra el formulario para crear un nuevo inmueble.
+     */
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         Inmueble inmueble = new Inmueble();
@@ -126,7 +161,9 @@ public class InmuebleController {
         return "inmuebles/form";
     }
     
-    //Funcion para crear el Inmueble
+    /**
+     * Procesa la creación de un nuevo inmueble.
+     */
     @PostMapping
     public String create(@ModelAttribute Inmueble inmueble, RedirectAttributes flash) {
         try {
@@ -139,7 +176,9 @@ public class InmuebleController {
         }
     }
     
-    //Editar un Inmueble
+    /**
+     * Muestra el formulario para editar un inmueble existente.
+     */
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Integer id, Model model, RedirectAttributes flash) {
         Inmueble inmueble = inmuebleService.findById(id);
@@ -153,10 +192,13 @@ public class InmuebleController {
         return "inmuebles/form";
     }
     
-    //Funcion para actualizar el Inmueble
+    /**
+     * Procesa la actualización de un inmueble.
+     */
     @PostMapping("/{id}")
     public String update(@PathVariable Integer id, @ModelAttribute Inmueble inmueble, RedirectAttributes flash) {
         try {
+            // Asegurarse de que el ID del path y del objeto coinciden
             inmueble.setId(id);
             inmuebleService.save(inmueble);
             flash.addFlashAttribute("success", "Inmueble actualizado exitosamente");
@@ -167,7 +209,9 @@ public class InmuebleController {
         }
     }
     
-    //Eliminar un Inmueble
+    /**
+     * Procesa la eliminación de un inmueble.
+     */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Integer id, RedirectAttributes flash) {
         try {

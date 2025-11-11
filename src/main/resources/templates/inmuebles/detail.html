@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{layout/base :: head(${title})}"></head>
+
 <body>
     <div th:replace="~{layout/base :: navbar}"></div>
     <div th:replace="~{layout/base :: messages}"></div>
@@ -10,7 +12,7 @@
         <a th:href="@{/inmuebles}" class="btn btn-secondary mb-3">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
-        
+
         <!-- Datos del Inmueble -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -21,9 +23,8 @@
                     <a th:href="@{/inmuebles/{id}/edit(id=${inmueble.id})}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil"></i> Editar
                     </a>
-                    <form th:action="@{/inmuebles/{id}/delete(id=${inmueble.id})}" 
-                          method="post" style="display:inline;"
-                          onsubmit="return confirmarEliminacion('¿Eliminar este inmueble?');">
+                    <form th:action="@{/inmuebles/{id}/delete(id=${inmueble.id})}" method="post" style="display:inline;"
+                        onsubmit="return confirmarEliminacion('¿Eliminar este inmueble?');">
                         <button type="submit" class="btn btn-danger btn-sm">
                             <i class="bi bi-trash"></i> Eliminar
                         </button>
@@ -62,19 +63,146 @@
             </div>
         </div>
 
-        <!-- Propiedades Adicionales -->
-        <div class="card">
+        <!-- ========================================================================= -->
+        <!-- VENDEDORES DEL INMUEBLE -->
+        <!-- ========================================================================= -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-badge"></i> Vendedores del Inmueble
+                    <span class="badge bg-light text-dark" th:text="${vendedores.size()}">0</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" th:if="${!vendedores.isEmpty()}">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre Completo</th>
+                                <th>NIF</th>
+                                <th>Contacto</th>
+                                <th>Representante</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="vi : ${vendedores}">
+                                <td th:text="${vi.vendedor.nombreCompleto}">Juan Pérez García</td>
+                                <td th:text="${vi.vendedor.nif}">12345678A</td>
+                                <td th:text="${vi.vendedor.contacto}">666777888</td>
+                                <td>
+                                    <span class="badge bg-info" th:text="${vi.representante}">Notaría García</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${vendedores.isEmpty()}" class="alert alert-info text-center mb-0">
+                    <i class="bi bi-info-circle"></i> No hay vendedores asignados a este inmueble
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- CITAS PROGRAMADAS -->
+        <!-- ========================================================================= -->
+        <div class="card mb-4">
             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
+                    <i class="bi bi-calendar-check"></i> Citas Programadas
+                    <span class="badge bg-light text-dark" th:text="${citas.size()}">0</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" th:if="${!citas.isEmpty()}">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Interesado</th>
+                                <th>Contacto</th>
+                                <th>Trabajador</th>
+                                <th>Anotaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cita : ${citas}">
+                                <td>
+                                    <i class="bi bi-calendar3"></i>
+                                    <span th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy')}">01/01/2024</span>
+                                </td>
+                                <td>
+                                    <i class="bi bi-clock"></i>
+                                    <span th:text="${#temporals.format(cita.hora, 'HH:mm')}">10:00</span>
+                                </td>
+                                <td th:text="${cita.interesado.nombreCompleto}">María López Ruiz</td>
+                                <td th:text="${cita.interesado.contacto}">666888999</td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${cita.trabajador.nombreCompleto}">Carlos
+                                        Ruiz</span>
+                                </td>
+                                <td>
+                                    <small class="text-muted" th:text="${cita.anotaciones ?: '-'}">Primera
+                                        visita</small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:if="${citas.isEmpty()}" class="alert alert-info text-center mb-0">
+                    <i class="bi bi-info-circle"></i> No hay citas programadas para este inmueble
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- INTERESADOS (FAVORITOS) -->
+        <!-- ========================================================================= -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-heart-fill"></i> Interesados (Favoritos)
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-center" style="min-height: 80px;">
+                    <div>
+                        <h2 class="display-4 mb-2" th:text="${cantidadInteresados}">0</h2>
+                        <p class="lead mb-0">
+                            <span th:if="${cantidadInteresados == 0}">
+                                Nadie ha guardado este inmueble como favorito aún
+                            </span>
+                            <span th:if="${cantidadInteresados == 1}">
+                                usuario ha guardado este inmueble en favoritos
+                            </span>
+                            <span th:if="${cantidadInteresados > 1}">
+                                usuarios han guardado este inmueble en favoritos
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- PROPIEDADES ADICIONALES (⭐ SECCIÓN MODIFICADA) -->
+        <!-- ========================================================================= -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
                     <i class="bi bi-boxes"></i> Propiedades Adicionales
-                    <span class="badge bg-light text-dark" th:text="${inmueble.propiedadesAdicionales.size()}">0</span>
+                    <!-- ✅ CORRECTO: Usa la variable separada -->
+                    <span class="badge bg-light text-dark" th:text="${propiedadesAdicionales.size()}">0</span>
                 </h5>
                 <a th:href="@{/propiedades/new/inmueble/{id}(id=${inmueble.id})}" class="btn btn-light btn-sm">
                     <i class="bi bi-plus-circle"></i> Añadir
                 </a>
             </div>
             <div class="card-body">
-                <div class="table-responsive" th:if="${!inmueble.propiedadesAdicionales.isEmpty()}">
+                <!-- ✅ CORRECTO: Usa la variable separada -->
+                <div class="table-responsive" th:if="${!propiedadesAdicionales.isEmpty()}">
                     <table class="table table-sm table-hover">
                         <thead class="table-light">
                             <tr>
@@ -86,24 +214,26 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="propiedad : ${inmueble.propiedadesAdicionales}">
+                            <!-- ✅ CORRECTO: Usa la variable separada -->
+                            <tr th:each="propiedad : ${propiedadesAdicionales}">
                                 <td th:text="${propiedad.id}">1</td>
                                 <td th:text="${propiedad.tipo}">Garaje</td>
-                                <td th:text="${propiedad.derrama} + ' €'">50 €</td>
+                                <td
+                                    th:text="${#numbers.formatDecimal(propiedad.derrama, 1, 'POINT', 2, 'COMMA')} + ' €'">
+                                    50,00 €</td>
                                 <td th:text="${propiedad.ibi}">100 €/año</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a th:href="@{/propiedades/{id}(id=${propiedad.id})}" 
-                                           class="btn btn-info">
+                                        <a th:href="@{/propiedades/{id}(id=${propiedad.id})}" class="btn btn-info">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a th:href="@{/propiedades/{id}/edit(id=${propiedad.id})}" 
-                                           class="btn btn-warning">
+                                        <a th:href="@{/propiedades/{id}/edit(id=${propiedad.id})}"
+                                            class="btn btn-warning">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form th:action="@{/propiedades/{id}/delete(id=${propiedad.id})}" 
-                                              method="post" style="display:inline;"
-                                              onsubmit="return confirmarEliminacion('¿Eliminar?');">
+                                        <form th:action="@{/propiedades/{id}/delete(id=${propiedad.id})}" method="post"
+                                            style="display:inline;"
+                                            onsubmit="return confirmarEliminacion('¿Eliminar?');">
                                             <button type="submit" class="btn btn-danger">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -114,9 +244,10 @@
                         </tbody>
                     </table>
                 </div>
-                
-                <div th:if="${inmueble.propiedadesAdicionales.isEmpty()}" class="alert alert-info text-center mb-0">
-                    No hay propiedades adicionales. 
+
+                <!-- ✅ CORRECTO: Usa la variable separada -->
+                <div th:if="${propiedadesAdicionales.isEmpty()}" class="alert alert-info text-center mb-0">
+                    <i class="bi bi-info-circle"></i> No hay propiedades adicionales.
                     <a th:href="@{/propiedades/new/inmueble/{id}(id=${inmueble.id})}">Añadir la primera</a>
                 </div>
             </div>
@@ -125,4 +256,5 @@
 
     <div th:replace="~{layout/base :: scripts}"></div>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 package com.jerezsurinmobiliaria.web.repository;
 
+import com.jerezsurinmobiliaria.web.dto.InmuebleListDTO;
 import com.jerezsurinmobiliaria.web.model.Inmueble;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,14 +14,14 @@ import java.util.List;
 public interface InmuebleRepository extends JpaRepository<Inmueble, Integer> {
     
     // ========================================================================
-    // FILTRADO DINÁMICO CON MÚLTIPLES CRITERIOS
+    // FILTRADO DINÁMICO CON MÚLTIPLES CRITERIOS (Sin cambios)
     // ========================================================================
     
-    /**
-     * Búsqueda dinámica con todos los filtros posibles
-     * Todos los parámetros son opcionales (pueden ser null)
-     */
-    @Query("SELECT i FROM Inmueble i WHERE " +
+    // ⭐ CONSULTA MODIFICADA PARA CONSTRUIR EL DTO DIRECTAMENTE
+    @Query("SELECT new com.jerezsurinmobiliaria.web.dto.InmuebleListDTO(" +
+           "i.id, i.direccion, i.tipoVivienda, i.tipoOperacion, i.precio, " +
+           "i.numHab, i.metrosCuadrados, SIZE(i.propiedadesAdicionales)) " +
+           "FROM Inmueble i WHERE " +
            "(:direccion IS NULL OR LOWER(i.direccion) LIKE LOWER(CONCAT('%', :direccion, '%'))) AND " +
            "(:tipoVivienda IS NULL OR i.tipoVivienda IN :tipoVivienda) AND " +
            "(:tipoOperacion IS NULL OR i.tipoOperacion IN :tipoOperacion) AND " +
@@ -33,7 +34,7 @@ public interface InmuebleRepository extends JpaRepository<Inmueble, Integer> {
            "(:comunidad IS NULL OR i.comunidad IN :comunidad) AND " +
            "(:estado IS NULL OR i.estado IN :estado) AND " +
            "(:valido IS NULL OR i.valido = :valido)")
-    Page<Inmueble> buscarConFiltros(
+    Page<InmuebleListDTO> buscarConFiltros( // ⭐ AHORA DEVUELVE Page<InmuebleListDTO>
         @Param("direccion") String direccion,
         @Param("tipoVivienda") List<String> tipoVivienda,
         @Param("tipoOperacion") List<Byte> tipoOperacion,
@@ -50,7 +51,7 @@ public interface InmuebleRepository extends JpaRepository<Inmueble, Integer> {
     );
     
     // ========================================================================
-    // MÉTODOS PARA OBTENER VALORES ÚNICOS (PARA FILTROS)
+    // MÉTODOS PARA OBTENER VALORES ÚNICOS (Sin cambios)
     // ========================================================================
     
     @Query("SELECT DISTINCT i.tipoVivienda FROM Inmueble i ORDER BY i.tipoVivienda")
@@ -74,6 +75,10 @@ public interface InmuebleRepository extends JpaRepository<Inmueble, Integer> {
     
     Long countByValido(Byte valido);
     Long countByTipoOperacion(Byte tipoOperacion);
+    
+    // ⭐ NUEVO: Query optimizada para contar interesados sin cargar la lista completa
+    @Query("SELECT COUNT(inter) FROM Inmueble i JOIN i.interesados inter WHERE i.id = :inmuebleId")
+    Long countInteresadosByInmuebleId(@Param("inmuebleId") Integer inmuebleId);
     
     // ========================================================================
     // TOP INMUEBLES
