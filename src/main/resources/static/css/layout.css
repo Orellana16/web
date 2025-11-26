@@ -5,7 +5,7 @@
 /* ========== NAVBAR ========== */
 
 .navbar-custom {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    background: var(--color-primary);
     box-shadow: var(--shadow-md);
     padding: 0.75rem 1rem;
     position: sticky;

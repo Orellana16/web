@@ -82,84 +82,81 @@
                 </div>
             </div>
             
-            <!-- ========== LISTADO (COLUMNA DERECHA) ========== -->
-            <div class="col-lg-9">
-                <div class="lista-container">
-                    <div class="card">
-                        <div class="card-header bg-primary d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0 text-white">
-                                <i class="bi bi-house-door-fill"></i> Inmuebles
-                                <span class="badge bg-light text-dark ms-2" th:text="${totalItems}">0</span>
-                            </h4>
-                            <a th:href="@{/inmuebles/new}" class="btn btn-light"><i class="bi bi-plus-circle-fill"></i> Nuevo</a>
-                        </div>
-                        <div class="card-body">
-                            
-                            <!-- Filtros activos -->
-                            <div th:if="${filtro_direccion != null or !filtro_tipoVivienda.isEmpty() or filtro_precioMin != null}" class="mb-3">
-                                <small class="text-muted d-block mb-2"><i class="bi bi-funnel"></i> Filtros activos:</small>
-                                <span th:if="${filtro_direccion != null}" class="filter-badge"><i class="bi bi-geo-alt"></i> <span th:text="${filtro_direccion}"></span></span>
-                                <span th:each="tipo : ${filtro_tipoVivienda}" class="filter-badge"><i class="bi bi-house"></i> <span th:text="${tipo}"></span></span>
-                                <span th:if="${filtro_precioMin != null}" class="filter-badge">Desde <span th:text="${#numbers.formatDecimal(filtro_precioMin, 0, 'COMMA', 0, 'POINT')}"></span>€</span>
-                                <span th:if="${filtro_precioMax != null}" class="filter-badge">Hasta <span th:text="${#numbers.formatDecimal(filtro_precioMax, 0, 'COMMA', 0, 'POINT')}"></span>€</span>
-                            </div>
-                            
-                            <div th:if="${!inmuebles.isEmpty()}" class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th class="sortable-header" th:onclick="'ordenarPor(\'id\')'">ID <i class="bi sort-icon" th:classappend="${sortBy == 'id'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
-                                            <th class="sortable-header" th:onclick="'ordenarPor(\'direccion\')'">Dirección <i class="bi sort-icon" th:classappend="${sortBy == 'direccion'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
-                                            <th class="sortable-header" th:onclick="'ordenarPor(\'tipoVivienda\')'">Tipo <i class="bi sort-icon" th:classappend="${sortBy == 'tipoVivienda'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
-                                            <th>Operación</th>
-                                            <th class="sortable-header" th:onclick="'ordenarPor(\'precio\')'">Precio <i class="bi sort-icon" th:classappend="${sortBy == 'precio'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
-                                            <th class="sortable-header" th:onclick="'ordenarPor(\'numHab\')'">Hab. <i class="bi sort-icon" th:classappend="${sortBy == 'numHab'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
-                                            <th class="sortable-header" th:onclick="'ordenarPor(\'metrosCuadrados\')'">m² <i class="bi sort-icon" th:classappend="${sortBy == 'metrosCuadrados'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
-                                            <th>Props.</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="inmueble : ${inmuebles}">
-                                            <td th:text="${inmueble.id}"></td>
-                                            <td th:text="${inmueble.direccion}"></td>
-                                            <td th:text="${inmueble.tipoVivienda}"></td>
-                                            <td><span th:if="${inmueble.tipoOperacion == 0}" class="badge bg-success">Venta</span><span th:if="${inmueble.tipoOperacion == 1}" class="badge bg-info text-dark">Alquiler</span></td>
-                                            <td th:text="${#numbers.formatDecimal(inmueble.precio, 0, 'COMMA', 2, 'POINT')} + ' €'"></td>
-                                            <td th:text="${inmueble.numHab}"></td>
-                                            <td th:text="${inmueble.metrosCuadrados} + ' m²'"></td>
-                                            
-                                            <!-- ⭐ AQUÍ ESTÁ LA CORRECCIÓN: Se usa la propiedad del DTO -->
-                                            <td class="text-center"><span class="badge bg-secondary" th:text="${inmueble.cantidadPropiedadesAdicionales}"></span></td>
-                                            
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a th:href="@{/inmuebles/{id}(id=${inmueble.id})}" class="btn btn-info" title="Ver"><i class="bi bi-eye"></i></a>
-                                                    <a th:href="@{/inmuebles/{id}/edit(id=${inmueble.id})}" class="btn btn-warning" title="Editar"><i class="bi bi-pencil"></i></a>
-                                                    <button type="button" class="btn btn-danger" th:onclick="'confirmarEliminar(' + ${inmueble.id} + ')'" title="Eliminar"><i class="bi bi-trash"></i></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <div th:if="${inmuebles.isEmpty()}" class="alert alert-info text-center">No hay inmuebles que cumplan los criterios.</div>
-                            
-                            <!-- PAGINACIÓN -->
-                            <nav th:if="${totalPages > 1}" class="mt-3">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'"><a class="page-link" href="#" th:onclick="'cambiarPagina(' + ${currentPage - 1} + '); return false;'">Anterior</a></li>
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'"><a class="page-link" href="#" th:onclick="'cambiarPagina(' + ${i} + '); return false;'" th:text="${i + 1}"></a></li>
-                                    <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'"><a class="page-link" href="#" th:onclick="'cambiarPagina(' + ${currentPage + 1} + '); return false;'">Siguiente</a></li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
+<!-- ========== LISTADO (COLUMNA DERECHA) ========== -->
+<div class="col-lg-9">
+    <div class="lista-container">
+        <div class="card">
+            <div class="card-header bg-primary d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 text-white">
+                    <i class="bi bi-house-door-fill"></i> Inmuebles
+                    <span class="badge bg-light text-dark ms-2" th:text="${totalItems}">0</span>
+                </h4>
+                <a th:href="@{/inmuebles/new}" class="btn btn-light"><i class="bi bi-plus-circle-fill"></i> Nuevo</a>
+            </div>
+            <div class="card-body">
+                
+                <!-- Filtros activos -->
+                <div th:if="${filtro_direccion != null or !filtro_tipoVivienda.isEmpty() or filtro_precioMin != null}" class="mb-3">
+                    <small class="text-muted d-block mb-2"><i class="bi bi-funnel"></i> Filtros activos:</small>
+                    <span th:if="${filtro_direccion != null}" class="filter-badge badge bg-light text-dark border me-1"><i class="bi bi-geo-alt"></i> <span th:text="${filtro_direccion}"></span></span>
+                    <span th:each="tipo : ${filtro_tipoVivienda}" class="filter-badge badge bg-light text-dark border me-1"><i class="bi bi-house"></i> <span th:text="${tipo}"></span></span>
+                    <span th:if="${filtro_precioMin != null}" class="filter-badge badge bg-light text-dark border me-1">Desde <span th:text="${#numbers.formatDecimal(filtro_precioMin, 0, 'COMMA', 0, 'POINT')}"></span>€</span>
+                    <span th:if="${filtro_precioMax != null}" class="filter-badge badge bg-light text-dark border me-1">Hasta <span th:text="${#numbers.formatDecimal(filtro_precioMax, 0, 'COMMA', 0, 'POINT')}"></span>€</span>
                 </div>
+                
+                <div th:if="${!inmuebles.isEmpty()}" class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th class="sortable-header" th:onclick="'ordenarPor(\'id\')'">ID <i class="bi sort-icon" th:classappend="${sortBy == 'id'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
+                                <th class="sortable-header" th:onclick="'ordenarPor(\'direccion\')'">Dirección <i class="bi sort-icon" th:classappend="${sortBy == 'direccion'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
+                                <th class="sortable-header" th:onclick="'ordenarPor(\'tipoVivienda\')'">Tipo <i class="bi sort-icon" th:classappend="${sortBy == 'tipoVivienda'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
+                                <th>Operación</th>
+                                <th class="sortable-header" th:onclick="'ordenarPor(\'precio\')'">Precio <i class="bi sort-icon" th:classappend="${sortBy == 'precio'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
+                                <th class="sortable-header" th:onclick="'ordenarPor(\'numHab\')'">Hab. <i class="bi sort-icon" th:classappend="${sortBy == 'numHab'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
+                                <th class="sortable-header" th:onclick="'ordenarPor(\'metrosCuadrados\')'">m² <i class="bi sort-icon" th:classappend="${sortBy == 'metrosCuadrados'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i></th>
+                                <th>Props.</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="inmueble : ${inmuebles}">
+                                <td th:text="${inmueble.id}"></td>
+                                <td th:text="${inmueble.direccion}"></td>
+                                <td th:text="${inmueble.tipoVivienda}"></td>
+                                <td><span th:if="${inmueble.tipoOperacion == 0}" class="badge bg-success">Venta</span><span th:if="${inmueble.tipoOperacion == 1}" class="badge bg-info text-dark">Alquiler</span></td>
+                                <td th:text="${#numbers.formatDecimal(inmueble.precio, 0, 'COMMA', 2, 'POINT')} + ' €'"></td>
+                                <td th:text="${inmueble.numHab}"></td>
+                                <td th:text="${inmueble.metrosCuadrados} + ' m²'"></td>
+                                
+                                <td class="text-center"><span class="badge bg-secondary" th:text="${inmueble.cantidadPropiedadesAdicionales}"></span></td>
+                                
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a th:href="@{/inmuebles/{id}(id=${inmueble.id})}" class="btn btn-info" title="Ver"><i class="bi bi-eye"></i></a>
+                                        <a th:href="@{/inmuebles/{id}/edit(id=${inmueble.id})}" class="btn btn-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                        <button type="button" class="btn btn-danger" th:onclick="'confirmarEliminar(' + ${inmueble.id} + ')'" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div th:if="${inmuebles.isEmpty()}" class="alert alert-info text-center mt-3">No hay inmuebles que cumplan los criterios.</div>
+                
+                <!-- PAGINACIÓN -->
+                <nav th:if="${totalPages > 1}" class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'"><a class="page-link" href="#" th:onclick="'cambiarPagina(' + ${currentPage - 1} + '); return false;'">Anterior</a></li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'"><a class="page-link" href="#" th:onclick="'cambiarPagina(' + ${i} + '); return false;'" th:text="${i + 1}"></a></li>
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'"><a class="page-link" href="#" th:onclick="'cambiarPagina(' + ${currentPage + 1} + '); return false;'">Siguiente</a></li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
+</div>
 
     <div th:replace="~{layout/base :: scripts}"></div>
     

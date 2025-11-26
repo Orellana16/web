@@ -5,9 +5,9 @@
 :root {
     /* Colores Principales */
     --color-primary: #043b89;
-    --color-primary-hover: #0652b8;
+    --color-primary-hover: #4a9e2c;
     --color-success: #57b333;
-    --color-success-hover: #4a9e2c;
+    --color-success-hover: #0652b8;
     
     /* Colores de Estado */
     --color-danger: #dc3545;
