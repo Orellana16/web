@@ -6,13 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
     
+    //Redirecciona la raíz al listado de inmuebles
     @GetMapping("/")
     public String home() {
         return "redirect:/inmuebles";
-    }
-    
-    @GetMapping("/test")
-    public String test() {
-        return "test";  // Verifica que Thymeleaf funcione
     }
 }

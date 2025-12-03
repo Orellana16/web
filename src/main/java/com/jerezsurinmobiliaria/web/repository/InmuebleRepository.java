@@ -66,19 +66,24 @@ public interface InmuebleRepository extends JpaRepository<Inmueble, Integer> {
     @Query("SELECT MIN(i.precio), MAX(i.precio) FROM Inmueble i")
     Object[] obtenerRangoPrecio();
     
-    @Query("SELECT MIN(i.metrosCuadrados), MAX(i.metrosCuadrados) FROM Inmueble i")
-    Object[] obtenerRangoMetros();
-    
     // ========================================================================
     // CONTEO Y ESTADÍSTICAS
     // ========================================================================
     
     Long countByValido(Byte valido);
     Long countByTipoOperacion(Byte tipoOperacion);
+
+    // Contar inmuebles por tipo de vivienda
+    @Query("SELECT i.tipoVivienda, COUNT(i) FROM Inmueble i GROUP BY i.tipoVivienda")
+    Integer countInmueblesByTipoVivienda();
     
-    // ⭐ NUEVO: Query optimizada para contar interesados sin cargar la lista completa
-    @Query("SELECT COUNT(inter) FROM Inmueble i JOIN i.interesados inter WHERE i.id = :inmuebleId")
+    // Contar interesados por inmueble
+    @Query("SELECT COUNT(int) FROM Inmueble i JOIN i.interesados int WHERE i.id = :inmuebleId")
     Long countInteresadosByInmuebleId(@Param("inmuebleId") Integer inmuebleId);
+
+    // Obtener los 5 inmuebles con más interesados
+    @Query(value = "SELECT i FROM Inmueble i LEFT JOIN i.interesados interesados GROUP BY i ORDER BY COUNT(interesados) DESC")
+    List<Inmueble> findTop5ByOrderByInteresados();
     
     // ========================================================================
     // TOP INMUEBLES

@@ -126,7 +126,7 @@
                                         <td class="fw-bold text-primary" th:text="${#numbers.formatDecimal(inm.precio, 0, 'POINT', 0, 'COMMA')} + ' €'">100.000 €</td>
                                         <td class="text-center">
                                             <span class="badge bg-danger rounded-pill fw-bold px-3 py-2" 
-                                                  th:text="${topInmueblesService.countInteresados(inm.id)}">5</span>
+                                                  th:text="${inm.numeroInteresados}">5</span>
                                         </td>
                                         <td class="pe-4">
                                             <a th:href="@{/inmuebles/{id}(id=${inm.id})}" class="btn btn-sm btn-outline-primary rounded-pill">Ver Detalle</a>
@@ -153,8 +153,8 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         // Obtener datos desde Thymeleaf
-        const labels = /*[[${chartLabels}]]*/ ['Piso', 'Casa'];
-        const dataValues = /*[[${chartData}]]*/ [10, 5];
+        const labels = /*[[${chartLabels}]]*/ [];
+        const dataValues = /*[[${chartData}]]*/ [];
 
         const ctx = document.getElementById('chartTipos').getContext('2d');
         const myChart = new Chart(ctx, {

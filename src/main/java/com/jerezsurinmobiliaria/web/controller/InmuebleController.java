@@ -6,7 +6,7 @@ import com.jerezsurinmobiliaria.web.model.Inmueble;
 import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
 import com.jerezsurinmobiliaria.web.model.VendedorInmueble;
 import com.jerezsurinmobiliaria.web.service.CitaService;
-import com.jerezsurinmobiliaria.web.service.InmueblePdfExporter; // Import del servicio PDF
+import com.jerezsurinmobiliaria.web.service.InmueblePdfExporter;
 import com.jerezsurinmobiliaria.web.service.InmuebleService;
 import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
 import com.jerezsurinmobiliaria.web.service.VendedorInmuebleService;
@@ -80,7 +80,7 @@ public class InmuebleController {
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        // ⭐ Se busca usando el método que devuelve DTOs
+        // Se busca usando el método que devuelve DTOs
         Page<InmuebleListDTO> inmueblesPage = inmuebleService.buscarConFiltros(
                 direccion, tipoVivienda, tipoOperacion, precioMin, precioMax,
                 numHabMin, numHabMax, metrosMin, metrosMax, comunidad, estado,
@@ -100,9 +100,17 @@ public class InmuebleController {
         model.addAttribute("tiposVivienda", inmuebleService.obtenerTiposVivienda());
         model.addAttribute("comunidades", inmuebleService.obtenerComunidades());
         model.addAttribute("estados", inmuebleService.obtenerEstados());
-        Double[] rangoPrecio = inmuebleService.obtenerRangoPrecio();
-        model.addAttribute("precioMinGlobal", rangoPrecio[0]);
-        model.addAttribute("precioMaxGlobal", rangoPrecio[1]);
+        Object[] rangoPrecio = inmuebleService.obtenerRangoPrecio();
+        if (rangoPrecio != null && rangoPrecio.length >= 2) {
+            // Si hay dos o más elementos, usamos los dos primeros
+            model.addAttribute("precioMinGlobal", rangoPrecio[0]);
+            model.addAttribute("precioMaxGlobal", rangoPrecio[1]);
+        } else {
+            // Si no hay suficientes elementos (por ejemplo, longitud 0 o 1),
+            // usamos valores por defecto para evitar el error.
+            model.addAttribute("precioMinGlobal", 0.0);
+            model.addAttribute("precioMaxGlobal", 1000000.0); // Valor por defecto alto
+        }
 
         // Mantener los valores de los filtros seleccionados
         model.addAttribute("filtro_direccion", direccion);
@@ -143,7 +151,7 @@ public class InmuebleController {
         List<VendedorInmueble> vendedores = vendedorInmuebleService.findByInmuebleId(id);
         List<PropiedadAdicional> propiedadesAdicionales = propiedadAdicionalService.findByInmuebleId(id);
 
-        // 3. Obtener conteo de interesados con una query eficiente
+        // 3. Obtener conteo de interesados con una query
         Long cantidadInteresados = inmuebleService.countInteresados(id);
 
         // 4. Pasar todos los datos a la vista
@@ -160,34 +168,29 @@ public class InmuebleController {
     /**
      * Genera y descarga un PDF con la ficha del inmueble, incluyendo propiedades
      * adicionales.
+     * @return 
      */
     @GetMapping("/{id}/pdf")
-    public void exportToPDF(@PathVariable Integer id, HttpServletResponse response) {
+    public String exportToPDF(@PathVariable Integer id, HttpServletResponse response) {
         log.info("Solicitud de exportación a PDF para inmueble ID: {}", id);
 
         try {
             // 1. Obtener Inmueble Principal
             Inmueble inmueble = inmuebleService.findById(id);
             if (inmueble == null) {
-                log.error("No se puede generar PDF, inmueble ID {} no encontrado", id);
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "El inmueble no existe");
-                return;
+                return "redirect:/inmuebles";
             }
 
             // 2. Cargar TODAS las relaciones necesarias para el PDF
             List<Cita> citas = citaService.findByInmuebleId(id);
             List<VendedorInmueble> vendedores = vendedorInmuebleService.findByInmuebleId(id);
-
-            // ⭐ NUEVO: Cargar Propiedades Adicionales
             List<PropiedadAdicional> propiedades = propiedadAdicionalService.findByInmuebleId(id);
 
             // 3. Configurar respuesta HTTP
             response.setContentType("application/pdf");
-
-            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HHmm");
-            String currentDateTime = dateFormatter.format(new Date());
             String headerKey = "Content-Disposition";
-            String headerValue = "attachment; filename=Ficha_Inmueble_" + id + "_" + currentDateTime + ".pdf";
+            String headerValue = "attachment; filename=Ficha_Inmueble_" + id + ".pdf";
             response.setHeader(headerKey, headerValue);
 
             // 4. Generar PDF pasando la nueva lista
@@ -199,6 +202,7 @@ public class InmuebleController {
         } catch (Exception e) {
             log.error("Error crítico al generar PDF para inmueble ID: {}", id, e);
         }
+        return null; // La respuesta ya se ha manejado
     }
 
     /**

@@ -2,7 +2,7 @@ package com.jerezsurinmobiliaria.web.service;
 
 import com.jerezsurinmobiliaria.web.model.Cita;
 import com.jerezsurinmobiliaria.web.model.Inmueble;
-import com.jerezsurinmobiliaria.web.model.PropiedadAdicional; // Importar esto
+import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
 import com.jerezsurinmobiliaria.web.model.VendedorInmueble;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
@@ -16,7 +16,6 @@ import java.util.List;
 @Service
 public class InmueblePdfExporter {
 
-    // 1. Actualizamos la firma del método para aceptar "List<PropiedadAdicional> propiedades"
     public void exportar(HttpServletResponse response, Inmueble inmueble, 
                          List<VendedorInmueble> vendedores, 
                          List<Cita> citas,
@@ -27,17 +26,13 @@ public class InmueblePdfExporter {
 
         document.open();
 
-        // Fuentes
-        Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
-        fontTitulo.setSize(18);
-        fontTitulo.setColor(Color.BLUE);
+        Font tituloF = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, new Color(4, 59, 137));
+        Font subtituloF = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Color.DARK_GRAY);
+        Font normalF = FontFactory.getFont(FontFactory.HELVETICA, 11);
+        Font negritaF = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11);
 
-        Font fontSubtitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
-        fontSubtitulo.setSize(14);
-        fontSubtitulo.setColor(Color.DARK_GRAY);
-
-        // --- TÍTULO Y DATOS GENERALES (Igual que antes) ---
-        Paragraph titulo = new Paragraph("Ficha del Inmueble #" + inmueble.getId(), fontTitulo);
+        // --- TÍTULO Y DATOS GENERALES ---
+        Paragraph titulo = new Paragraph("Ficha del Inmueble #" + inmueble.getId(), tituloF);
         titulo.setAlignment(Paragraph.ALIGN_CENTER);
         document.add(titulo);
         document.add(new Paragraph(" "));
@@ -46,63 +41,54 @@ public class InmueblePdfExporter {
         tablaInfo.setWidthPercentage(100f);
         tablaInfo.setSpacingBefore(10);
         
-        agregarCelda(tablaInfo, "Dirección:", true);
-        agregarCelda(tablaInfo, inmueble.getDireccion(), false);
-        agregarCelda(tablaInfo, "Tipo:", true);
-        agregarCelda(tablaInfo, inmueble.getTipoVivienda(), false);
-        agregarCelda(tablaInfo, "Precio:", true);
-        agregarCelda(tablaInfo, inmueble.getPrecio() + " €", false);
-        agregarCelda(tablaInfo, "Hab / Baños:", true);
-        agregarCelda(tablaInfo, inmueble.getNumHab() + " hab / " + inmueble.getNumBanos() + " baños", false);
-        agregarCelda(tablaInfo, "Metros:", true);
-        agregarCelda(tablaInfo, inmueble.getMetrosCuadrados() + " m²", false);
+        agregarCelda(tablaInfo, "Dirección:", negritaF, Color.LIGHT_GRAY);
+        agregarCelda(tablaInfo, inmueble.getDireccion(), normalF, Color.WHITE);
+        agregarCelda(tablaInfo, "Tipo:", negritaF, Color.LIGHT_GRAY);
+        agregarCelda(tablaInfo, inmueble.getTipoVivienda(), normalF, Color.WHITE);
+        agregarCelda(tablaInfo, "Precio:", negritaF, Color.LIGHT_GRAY);
+        agregarCelda(tablaInfo, inmueble.getPrecio() + " €", normalF, Color.WHITE);
+        agregarCelda(tablaInfo, "Hab / Baños:", negritaF, Color.LIGHT_GRAY);
+        agregarCelda(tablaInfo, inmueble.getNumHab() + " hab / " + inmueble.getNumBanos() + " baños", normalF, Color.WHITE);
+        agregarCelda(tablaInfo, "Metros:", negritaF, Color.LIGHT_GRAY);
+        agregarCelda(tablaInfo, inmueble.getMetrosCuadrados() + " m²", normalF, Color.WHITE);
 
         document.add(tablaInfo);
         document.add(new Paragraph(" "));
 
-        // --- NUEVA SECCIÓN: PROPIEDADES ADICIONALES ---
+        // --- PROPIEDADES ADICIONALES ---
         if (propiedades != null && !propiedades.isEmpty()) {
-            Paragraph pProps = new Paragraph("Propiedades Adicionales (Garajes, Trasteros...)", fontSubtitulo);
-            document.add(pProps);
+            document.add(new Paragraph("Propiedades Adicionales", subtituloF));
 
-            PdfPTable tablaProps = new PdfPTable(3); // 3 Columnas
+            PdfPTable tablaProps = new PdfPTable(3);
             tablaProps.setWidthPercentage(100f);
             tablaProps.setSpacingBefore(10);
-            // Anchos relativos: Tipo ancho, Derrama medio, IBI medio
             tablaProps.setWidths(new float[] {4.0f, 3.0f, 3.0f}); 
 
-            // Cabeceras
-            agregarCabecera(tablaProps, "Tipo");
-            agregarCabecera(tablaProps, "Derrama");
-            agregarCabecera(tablaProps, "IBI");
+            agregarCabecera(tablaProps, "Tipo", Color.DARK_GRAY);
+            agregarCabecera(tablaProps, "Derrama", Color.DARK_GRAY);
+            agregarCabecera(tablaProps, "IBI", Color.DARK_GRAY);
 
-            // Datos
             for (PropiedadAdicional pa : propiedades) {
-                tablaProps.addCell(pa.getTipo());
-                
-                // Formatear dinero si es posible, si no, string simple
-                String derramaStr = (pa.getDerrama() != null) ? pa.getDerrama() + " €" : "-";
-                tablaProps.addCell(derramaStr);
-                
+                tablaProps.addCell(pa.getTipo() != null ? pa.getTipo() : "-");
+                tablaProps.addCell(pa.getDerrama() != null ? pa.getDerrama() + " €" : "-");
                 tablaProps.addCell(pa.getIbi() != null ? pa.getIbi() : "-");
             }
             document.add(tablaProps);
             document.add(new Paragraph(" "));
         }
 
-        // --- VENDEDORES (Igual que antes) ---
+        // --- VENDEDORES ---
         if (vendedores != null && !vendedores.isEmpty()) {
-            Paragraph pVendedores = new Paragraph("Vendedores Asignados", fontSubtitulo);
-            document.add(pVendedores);
+            document.add(new Paragraph("Vendedores Asignados", subtituloF));
             
             PdfPTable tablaVendedores = new PdfPTable(3);
             tablaVendedores.setWidthPercentage(100f);
             tablaVendedores.setSpacingBefore(10);
             tablaVendedores.setWidths(new float[] {3.5f, 2.5f, 4.0f});
 
-            agregarCabecera(tablaVendedores, "Nombre");
-            agregarCabecera(tablaVendedores, "NIF");
-            agregarCabecera(tablaVendedores, "Contacto");
+            agregarCabecera(tablaVendedores, "Nombre", Color.DARK_GRAY);
+            agregarCabecera(tablaVendedores, "NIF", Color.DARK_GRAY);
+            agregarCabecera(tablaVendedores, "Contacto", Color.DARK_GRAY);
 
             for (VendedorInmueble vi : vendedores) {
                 tablaVendedores.addCell(vi.getVendedor().getNombreCompleto());
@@ -113,18 +99,17 @@ public class InmueblePdfExporter {
             document.add(new Paragraph(" "));
         }
 
-        // --- CITAS (Igual que antes) ---
+        // --- CITAS ---
         if (citas != null && !citas.isEmpty()) {
-            Paragraph pCitas = new Paragraph("Próximas Citas", fontSubtitulo);
-            document.add(pCitas);
+            document.add(new Paragraph("Próximas Citas", subtituloF));
 
             PdfPTable tablaCitas = new PdfPTable(3);
             tablaCitas.setWidthPercentage(100f);
             tablaCitas.setSpacingBefore(10);
             
-            agregarCabecera(tablaCitas, "Fecha/Hora");
-            agregarCabecera(tablaCitas, "Interesado");
-            agregarCabecera(tablaCitas, "Comercial");
+            agregarCabecera(tablaCitas, "Fecha/Hora", Color.DARK_GRAY);
+            agregarCabecera(tablaCitas, "Interesado", Color.DARK_GRAY);
+            agregarCabecera(tablaCitas, "Comercial", Color.DARK_GRAY);
 
             for (Cita c : citas) {
                 tablaCitas.addCell(c.getFecha().toString() + " " + c.getHora().toString());
@@ -137,18 +122,17 @@ public class InmueblePdfExporter {
         document.close();
     }
 
-    private void agregarCelda(PdfPTable tabla, String texto, boolean esNegrita) {
-        Font font = esNegrita ? FontFactory.getFont(FontFactory.HELVETICA_BOLD) : FontFactory.getFont(FontFactory.HELVETICA);
-        PdfPCell celda = new PdfPCell(new Phrase(texto != null ? texto : "", font));
+    private void agregarCelda(PdfPTable tabla, String texto, Font font, Color backgroundColor) {
+        PdfPCell celda = new PdfPCell(new Phrase(texto != null ? texto : "-", font));
         celda.setPadding(5);
-        if (esNegrita) celda.setBackgroundColor(Color.LIGHT_GRAY);
+        celda.setBackgroundColor(backgroundColor);
         tabla.addCell(celda);
     }
 
-    private void agregarCabecera(PdfPTable tabla, String titulo) {
+    private void agregarCabecera(PdfPTable tabla, String titulo, Color backgroundColor) {
         PdfPCell celda = new PdfPCell(new Phrase(titulo, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE)));
-        celda.setBackgroundColor(Color.DARK_GRAY);
-        celda.setPadding(5);
+        celda.setBackgroundColor(backgroundColor);
+        celda.setPadding(6);
         celda.setHorizontalAlignment(Element.ALIGN_CENTER);
         tabla.addCell(celda);
     }
