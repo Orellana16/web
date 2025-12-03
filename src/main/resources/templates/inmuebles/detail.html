@@ -20,6 +20,11 @@
                     <i class="bi bi-house-door"></i> Detalle del Inmueble
                 </h4>
                 <div>
+                    <!-- ⭐ BOTÓN PDF AÑADIDO AQUÍ ⭐ -->
+                    <a th:href="@{/inmuebles/{id}/pdf(id=${inmueble.id})}" class="btn btn-light btn-sm text-danger" target="_blank" title="Descargar ficha en PDF">
+                        <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+                    </a>
+                    
                     <a th:href="@{/inmuebles/{id}/edit(id=${inmueble.id})}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil"></i> Editar
                     </a>
@@ -187,13 +192,12 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- PROPIEDADES ADICIONALES (⭐ SECCIÓN MODIFICADA) -->
+        <!-- PROPIEDADES ADICIONALES -->
         <!-- ========================================================================= -->
         <div class="card mb-4">
             <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="bi bi-boxes"></i> Propiedades Adicionales
-                    <!-- ✅ CORRECTO: Usa la variable separada -->
                     <span class="badge bg-light text-dark" th:text="${propiedadesAdicionales.size()}">0</span>
                 </h5>
                 <a th:href="@{/propiedades/new/inmueble/{id}(id=${inmueble.id})}" class="btn btn-light btn-sm">
@@ -201,7 +205,6 @@
                 </a>
             </div>
             <div class="card-body">
-                <!-- ✅ CORRECTO: Usa la variable separada -->
                 <div class="table-responsive" th:if="${!propiedadesAdicionales.isEmpty()}">
                     <table class="table table-sm table-hover">
                         <thead class="table-light">
@@ -214,7 +217,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- ✅ CORRECTO: Usa la variable separada -->
                             <tr th:each="propiedad : ${propiedadesAdicionales}">
                                 <td th:text="${propiedad.id}">1</td>
                                 <td th:text="${propiedad.tipo}">Garaje</td>
@@ -245,7 +247,6 @@
                     </table>
                 </div>
 
-                <!-- ✅ CORRECTO: Usa la variable separada -->
                 <div th:if="${propiedadesAdicionales.isEmpty()}" class="alert alert-info text-center mb-0">
                     <i class="bi bi-info-circle"></i> No hay propiedades adicionales.
                     <a th:href="@{/propiedades/new/inmueble/{id}(id=${inmueble.id})}">Añadir la primera</a>

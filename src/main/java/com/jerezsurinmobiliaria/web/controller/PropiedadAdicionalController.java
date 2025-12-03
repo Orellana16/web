@@ -15,6 +15,7 @@ import com.jerezsurinmobiliaria.web.service.InmuebleService;
 import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j; // Import necesario
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/propiedades")
 @RequiredArgsConstructor
+@Slf4j
 public class PropiedadAdicionalController {
     
     private final PropiedadAdicionalService propiedadService;
@@ -127,8 +129,10 @@ public class PropiedadAdicionalController {
     
     @PostMapping
     public String create(@ModelAttribute PropiedadAdicional propiedad, @RequestParam(value = "inmuebleId", required = false) Integer inmuebleId, RedirectAttributes flash) {
+        
         try {
             if (inmuebleId == null) {
+                log.warn("Intento de creación fallido: inmuebleId es nulo");
                 flash.addFlashAttribute("error", "Debe seleccionar un inmueble");
                 return "redirect:/propiedades/new";
             }
@@ -136,24 +140,24 @@ public class PropiedadAdicionalController {
             Inmueble inmueble = inmuebleService.findById(inmuebleId);
             
             if (inmueble == null) {
+                log.warn("Intento de creación fallido: Inmueble ID {} no encontrado", inmuebleId);
                 flash.addFlashAttribute("error", "El inmueble seleccionado no existe");
                 return "redirect:/propiedades/new";
             }
             
             propiedad.setInmueble(inmueble);
             
-            //LOG
-            System.out.println("=== CONTROLLER - CREAR ===");
-            System.out.println("Inmueble ID: " + inmuebleId);
-            System.out.println("Propiedad Inmueble: " + propiedad.getInmueble());
-            System.out.println("Tipo: " + propiedad.getTipo());
-            System.out.println("Derrama: " + propiedad.getDerrama());
+            PropiedadAdicional saved = propiedadService.save(propiedad);
             
-            propiedadService.save(propiedad);
+            // Log éxito
+            log.info("Propiedad Adicional creada exitosamente con ID: {}", saved.getId());
+            
             flash.addFlashAttribute("success", "Propiedad adicional creada exitosamente");
             return "redirect:/inmuebles/" + inmuebleId;
         } catch (Exception e) {
-            e.printStackTrace();
+            // Log error con traza
+            log.error("Error al crear la propiedad adicional para inmueble ID: {}", inmuebleId, e);
+            
             flash.addFlashAttribute("error", "Error al crear la propiedad: " + e.getMessage());
             return "redirect:/propiedades/new";
         }
@@ -180,6 +184,7 @@ public class PropiedadAdicionalController {
                         @ModelAttribute PropiedadAdicional propiedad,
                         @RequestParam(value = "inmuebleId", required = false) Integer inmuebleId,
                         RedirectAttributes flash) {
+        
         try {
             if (inmuebleId == null) {
                 flash.addFlashAttribute("error", "Debe seleccionar un inmueble");
@@ -189,6 +194,7 @@ public class PropiedadAdicionalController {
             Inmueble inmueble = inmuebleService.findById(inmuebleId);
             
             if (inmueble == null) {
+                log.warn("Actualización fallida: Inmueble ID {} no existe", inmuebleId);
                 flash.addFlashAttribute("error", "El inmueble seleccionado no existe");
                 return "redirect:/propiedades/" + id + "/edit";
             }
@@ -197,10 +203,16 @@ public class PropiedadAdicionalController {
             propiedad.setInmueble(inmueble);
             
             propiedadService.save(propiedad);
+            
+            // Log éxito
+            log.info("Propiedad Adicional ID: {} actualizada exitosamente", id);
+            
             flash.addFlashAttribute("success", "Propiedad adicional actualizada exitosamente");
             return "redirect:/propiedades/" + id;
         } catch (Exception e) {
-            e.printStackTrace();
+            // Log error con traza
+            log.error("Error al actualizar propiedad adicional ID: {}", id, e);
+            
             flash.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
             return "redirect:/propiedades/" + id + "/edit";
         }
@@ -210,10 +222,12 @@ public class PropiedadAdicionalController {
     public String delete(@PathVariable Integer id, 
                         @RequestParam(value = "returnToInmueble", required = false) Integer inmuebleId,
                         RedirectAttributes flash) {
+        
         try {
             PropiedadAdicional propiedad = propiedadService.findById(id);
             
             if (propiedad == null) {
+                log.warn("Intento de eliminar propiedad inexistente ID: {}", id);
                 flash.addFlashAttribute("error", "La propiedad adicional no existe");
                 return "redirect:/propiedades";
             }
@@ -221,6 +235,10 @@ public class PropiedadAdicionalController {
             Integer idInmueble = propiedad.getInmueble().getId();
             
             propiedadService.deleteById(id);
+            
+            // Log éxito
+            log.info("Propiedad Adicional ID: {} eliminada exitosamente", id);
+            
             flash.addFlashAttribute("success", "Propiedad adicional eliminada exitosamente");
             
             if (inmuebleId != null) {
@@ -231,7 +249,9 @@ public class PropiedadAdicionalController {
             
             return "redirect:/propiedades";
         } catch (Exception e) {
-            e.printStackTrace();
+            // Log error crítico
+            log.error("Excepción al eliminar propiedad adicional ID: {}", id, e);
+            
             flash.addFlashAttribute("error", "Error al eliminar: " + e.getMessage());
             return "redirect:/propiedades";
         }

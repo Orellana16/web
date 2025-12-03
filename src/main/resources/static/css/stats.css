@@ -1,0 +1,41 @@
+/* ============================================
+   AJUSTES ADICIONALES PARA ESTÉTICA DEL DASHBOARD
+   ============================================ */
+
+/* Helper para hacer las transiciones más fluidas */
+.transition-normal {
+    transition: all var(--transition-normal);
+}
+
+/* Redondeo de Bootstrap mapeado a tus variables */
+.rounded-md {
+    border-radius: var(--border-radius-md) !important;
+}
+.rounded-lg {
+    border-radius: var(--border-radius-lg) !important;
+}
+.rounded-xl {
+    border-radius: var(--border-radius-xl) !important;
+}
+
+/* Efecto Hover para las tarjetas KPI */
+.card.shadow-custom-md:hover {
+    box-shadow: var(--shadow-primary); /* Sombra de color al hacer hover */
+    transform: translateY(-2px); /* Pequeño levantamiento */
+}
+
+/* Ajuste sutil para texto secundario en KPI */
+.card .text-secondary {
+    color: var(--color-text-secondary) !important;
+}
+
+/* Tablas con un aspecto más limpio y sin bordes internos */
+.table-borderless > :not(caption) > * > * {
+    border-bottom-width: 0;
+}
+
+/* Asegura el alto en el div del gráfico */
+#chartTipos {
+    width: 100%;
+    height: 100%;
+}

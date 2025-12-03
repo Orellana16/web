@@ -6,10 +6,13 @@ import com.jerezsurinmobiliaria.web.model.Inmueble;
 import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
 import com.jerezsurinmobiliaria.web.model.VendedorInmueble;
 import com.jerezsurinmobiliaria.web.service.CitaService;
+import com.jerezsurinmobiliaria.web.service.InmueblePdfExporter; // Import del servicio PDF
 import com.jerezsurinmobiliaria.web.service.InmuebleService;
 import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
 import com.jerezsurinmobiliaria.web.service.VendedorInmuebleService;
+import jakarta.servlet.http.HttpServletResponse; // Cambiar a javax.servlet si usas Spring Boot antiguo
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,23 +23,30 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Controller
 @RequestMapping("/inmuebles")
 @RequiredArgsConstructor
+@Slf4j
 public class InmuebleController {
-    
+
     private final InmuebleService inmuebleService;
     private final CitaService citaService;
     private final VendedorInmuebleService vendedorInmuebleService;
     private final PropiedadAdicionalService propiedadAdicionalService;
-    
+
+    // Inyección del servicio para generar PDFs
+    private final InmueblePdfExporter pdfExporter;
 
     /**
      * Muestra el listado de inmuebles.
-     * Utiliza un DTO (InmuebleListDTO) para evitar LazyInitializationException en la vista.
+     * Utiliza un DTO (InmuebleListDTO) para evitar LazyInitializationException en
+     * la vista.
      */
     @GetMapping
     @Transactional(readOnly = true)
@@ -48,7 +58,7 @@ public class InmuebleController {
             // Ordenamiento
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir,
-            
+
             // Filtros
             @RequestParam(required = false) String direccion,
             @RequestParam(required = false) List<String> tipoVivienda,
@@ -61,23 +71,22 @@ public class InmuebleController {
             @RequestParam(required = false) Double metrosMax,
             @RequestParam(required = false) List<String> comunidad,
             @RequestParam(required = false) List<String> estado,
-            
+
             Model model) {
-        
+
         // Crear Pageable con ordenamiento
-        Sort sort = sortDir.equalsIgnoreCase("asc") 
-            ? Sort.by(sortBy).ascending() 
-            : Sort.by(sortBy).descending();
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        
+
         // ⭐ Se busca usando el método que devuelve DTOs
         Page<InmuebleListDTO> inmueblesPage = inmuebleService.buscarConFiltros(
-            direccion, tipoVivienda, tipoOperacion, precioMin, precioMax,
-            numHabMin, numHabMax, metrosMin, metrosMax, comunidad, estado,
-            (byte) 1, // Solo válidos
-            pageable
-        );
-        
+                direccion, tipoVivienda, tipoOperacion, precioMin, precioMax,
+                numHabMin, numHabMax, metrosMin, metrosMax, comunidad, estado,
+                (byte) 1, // Solo válidos
+                pageable);
+
         // Datos para la vista (ahora son DTOs, pero la vista funciona igual)
         model.addAttribute("inmuebles", inmueblesPage.getContent());
         model.addAttribute("currentPage", page);
@@ -86,7 +95,7 @@ public class InmuebleController {
         model.addAttribute("size", size);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortDir", sortDir);
-        
+
         // Valores para los desplegables de filtros
         model.addAttribute("tiposVivienda", inmuebleService.obtenerTiposVivienda());
         model.addAttribute("comunidades", inmuebleService.obtenerComunidades());
@@ -94,7 +103,7 @@ public class InmuebleController {
         Double[] rangoPrecio = inmuebleService.obtenerRangoPrecio();
         model.addAttribute("precioMinGlobal", rangoPrecio[0]);
         model.addAttribute("precioMaxGlobal", rangoPrecio[1]);
-        
+
         // Mantener los valores de los filtros seleccionados
         model.addAttribute("filtro_direccion", direccion);
         model.addAttribute("filtro_tipoVivienda", tipoVivienda != null ? tipoVivienda : new ArrayList<>());
@@ -107,46 +116,91 @@ public class InmuebleController {
         model.addAttribute("filtro_metrosMax", metrosMax);
         model.addAttribute("filtro_comunidad", comunidad != null ? comunidad : new ArrayList<>());
         model.addAttribute("filtro_estado", estado != null ? estado : new ArrayList<>());
-        
+
         model.addAttribute("title", "Listado de Inmuebles");
         return "inmuebles/list";
     }
-    
+
     /**
      * Muestra la vista de detalle.
-     * Carga cada colección de datos por separado para evitar errores y ser eficiente.
+     * Carga cada colección de datos por separado para evitar errores y ser
+     * eficiente.
      */
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     public String detail(@PathVariable Integer id, Model model, RedirectAttributes flash) {
-        
+
         // 1. Cargar la entidad principal
         Inmueble inmueble = inmuebleService.findById(id);
-        
+
         if (inmueble == null) {
             flash.addFlashAttribute("error", "El inmueble no existe");
             return "redirect:/inmuebles";
         }
-        
+
         // 2. Cargar cada colección de datos por separado
         List<Cita> citas = citaService.findByInmuebleId(id);
         List<VendedorInmueble> vendedores = vendedorInmuebleService.findByInmuebleId(id);
         List<PropiedadAdicional> propiedadesAdicionales = propiedadAdicionalService.findByInmuebleId(id);
-        
+
         // 3. Obtener conteo de interesados con una query eficiente
         Long cantidadInteresados = inmuebleService.countInteresados(id);
-        
+
         // 4. Pasar todos los datos a la vista
         model.addAttribute("inmueble", inmueble);
         model.addAttribute("citas", citas);
         model.addAttribute("vendedores", vendedores);
         model.addAttribute("propiedadesAdicionales", propiedadesAdicionales);
         model.addAttribute("cantidadInteresados", cantidadInteresados);
-        
+
         model.addAttribute("title", "Detalle del Inmueble");
         return "inmuebles/detail";
     }
-    
+
+    /**
+     * Genera y descarga un PDF con la ficha del inmueble, incluyendo propiedades
+     * adicionales.
+     */
+    @GetMapping("/{id}/pdf")
+    public void exportToPDF(@PathVariable Integer id, HttpServletResponse response) {
+        log.info("Solicitud de exportación a PDF para inmueble ID: {}", id);
+
+        try {
+            // 1. Obtener Inmueble Principal
+            Inmueble inmueble = inmuebleService.findById(id);
+            if (inmueble == null) {
+                log.error("No se puede generar PDF, inmueble ID {} no encontrado", id);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "El inmueble no existe");
+                return;
+            }
+
+            // 2. Cargar TODAS las relaciones necesarias para el PDF
+            List<Cita> citas = citaService.findByInmuebleId(id);
+            List<VendedorInmueble> vendedores = vendedorInmuebleService.findByInmuebleId(id);
+
+            // ⭐ NUEVO: Cargar Propiedades Adicionales
+            List<PropiedadAdicional> propiedades = propiedadAdicionalService.findByInmuebleId(id);
+
+            // 3. Configurar respuesta HTTP
+            response.setContentType("application/pdf");
+
+            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HHmm");
+            String currentDateTime = dateFormatter.format(new Date());
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename=Ficha_Inmueble_" + id + "_" + currentDateTime + ".pdf";
+            response.setHeader(headerKey, headerValue);
+
+            // 4. Generar PDF pasando la nueva lista
+            // Asegúrate de que el orden de los parámetros coincida con el servicio
+            pdfExporter.exportar(response, inmueble, vendedores, citas, propiedades);
+
+            log.info("PDF generado y enviado exitosamente para inmueble ID: {}", id);
+
+        } catch (Exception e) {
+            log.error("Error crítico al generar PDF para inmueble ID: {}", id, e);
+        }
+    }
+
     /**
      * Muestra el formulario para crear un nuevo inmueble.
      */
@@ -160,22 +214,29 @@ public class InmuebleController {
         model.addAttribute("action", "Crear");
         return "inmuebles/form";
     }
-    
+
     /**
      * Procesa la creación de un nuevo inmueble.
      */
     @PostMapping
     public String create(@ModelAttribute Inmueble inmueble, RedirectAttributes flash) {
+
         try {
-            inmuebleService.save(inmueble);
+            Inmueble saved = inmuebleService.save(inmueble);
+            // Log éxito
+            log.info("Inmueble creado exitosamente con ID: {}", saved.getId());
+
             flash.addFlashAttribute("success", "Inmueble creado exitosamente");
             return "redirect:/inmuebles";
         } catch (Exception e) {
+            // Log error
+            log.error("Error al crear el inmueble. Datos: {}", inmueble, e);
+
             flash.addFlashAttribute("error", "Error al crear el inmueble: " + e.getMessage());
             return "redirect:/inmuebles/new";
         }
     }
-    
+
     /**
      * Muestra el formulario para editar un inmueble existente.
      */
@@ -191,38 +252,55 @@ public class InmuebleController {
         model.addAttribute("action", "Actualizar");
         return "inmuebles/form";
     }
-    
+
     /**
      * Procesa la actualización de un inmueble.
      */
     @PostMapping("/{id}")
     public String update(@PathVariable Integer id, @ModelAttribute Inmueble inmueble, RedirectAttributes flash) {
+
         try {
             // Asegurarse de que el ID del path y del objeto coinciden
             inmueble.setId(id);
             inmuebleService.save(inmueble);
+
+            // Log éxito
+            log.info("Inmueble ID: {} actualizado exitosamente", id);
+
             flash.addFlashAttribute("success", "Inmueble actualizado exitosamente");
             return "redirect:/inmuebles/" + id;
         } catch (Exception e) {
+            // Log error
+            log.error("Error al actualizar inmueble ID: {}", id, e);
+
             flash.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
             return "redirect:/inmuebles/" + id + "/edit";
         }
     }
-    
+
     /**
      * Procesa la eliminación de un inmueble.
      */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Integer id, RedirectAttributes flash) {
+
         try {
             Inmueble inmueble = inmuebleService.findById(id);
             if (inmueble == null) {
+                log.warn("Intento de eliminar inmueble inexistente ID: {}", id);
                 flash.addFlashAttribute("error", "El inmueble no existe");
                 return "redirect:/inmuebles";
             }
             inmuebleService.deleteById(id);
+
+            // Log éxito
+            log.info("Inmueble ID: {} eliminado exitosamente", id);
+
             flash.addFlashAttribute("success", "Inmueble eliminado exitosamente");
         } catch (Exception e) {
+            // Log error
+            log.error("Error crítico al eliminar inmueble ID: {}", id, e);
+
             flash.addFlashAttribute("error", "Error al eliminar: " + e.getMessage());
         }
         return "redirect:/inmuebles";
