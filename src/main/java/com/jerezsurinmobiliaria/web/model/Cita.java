@@ -1,7 +1,9 @@
 package com.jerezsurinmobiliaria.web.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
@@ -10,6 +12,8 @@ import java.time.LocalTime;
 @Entity
 @Table(name = "Citas")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cita {
 
     @Id
@@ -40,4 +44,17 @@ public class Cita {
     @JoinColumn(name = "Interesado_id", nullable = false)
     @ToString.Exclude
     private Interesado interesado;
+
+    // Helper methods
+    public Integer getInmuebleId() {
+        return inmueble != null ? inmueble.getId() : null;
+    }
+
+    public Integer getTrabajadorId() {
+        return trabajador != null ? trabajador.getId() : null;
+    }
+
+    public Integer getInteresadoId() {
+        return interesado != null ? interesado.getId() : null;
+    }
 }

@@ -2,76 +2,44 @@ package com.jerezsurinmobiliaria.web.service;
 
 import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
 import com.jerezsurinmobiliaria.web.repository.PropiedadAdicionalRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class PropiedadAdicionalService {
     
-    private final PropiedadAdicionalRepository propiedadAdicionalRepository;
-    
-    @Transactional(readOnly = true)
-    public List<PropiedadAdicional> findAll() {
-        return propiedadAdicionalRepository.findAll();
-    }
-    
-    @Transactional(readOnly = true)
-    public PropiedadAdicional findById(Integer id) {
-        return propiedadAdicionalRepository.findById(id).orElse(null);
-    }
-    
-    //LOGS PARA GUARDAR PROPIEDAD ADICIONAL
-    @Transactional
-    public PropiedadAdicional save(PropiedadAdicional propiedadAdicional) {
-        System.out.println("=== GUARDANDO PROPIEDAD ===");
-        System.out.println("Tipo: " + propiedadAdicional.getTipo());
-        System.out.println("Derrama: " + propiedadAdicional.getDerrama());
-        System.out.println("IBI: " + propiedadAdicional.getIbi());
-        System.out.println("Inmueble: " + propiedadAdicional.getInmueble());
-        System.out.println("Inmueble ID: " + (propiedadAdicional.getInmueble() != null ? propiedadAdicional.getInmueble().getId() : "NULL"));
-        
-        return propiedadAdicionalRepository.save(propiedadAdicional);
-    }
-    
-    @Transactional
-    public void deleteById(Integer id) {
-        propiedadAdicionalRepository.deleteById(id);
-    }
+    @Autowired
+    private PropiedadAdicionalRepository propiedadAdicionalRepository;
     
     // ========================================================================
     // BÚSQUEDA CON FILTROS DINÁMICOS
     // ========================================================================
-    
-    @Transactional(readOnly = true)
-    public Page<PropiedadAdicional> buscarConFiltros(
+    public Page<PropiedadAdicional> buscarPropiedadesConFiltros(
             List<String> tipo,
             Double derramaMin,
             Double derramaMax,
             String direccionInmueble,
             Integer inmuebleId,
             Pageable pageable) {
-        
+
+        // Llamada directa al método del repositorio:
         return propiedadAdicionalRepository.buscarConFiltros(
-            tipo, derramaMin, derramaMax, direccionInmueble, inmuebleId, pageable
+                tipo,
+                derramaMin,
+                derramaMax,
+                direccionInmueble,
+                inmuebleId,
+                pageable
         );
     }
-    
+
     // ========================================================================
     // OBTENER VALORES ÚNICOS PARA FILTROS
     // ========================================================================
-    
-    @Transactional(readOnly = true)
-    public List<String> obtenerTipos() {
-        return propiedadAdicionalRepository.findDistinctTipo();
-    }
-    
-    @Transactional(readOnly = true)
     public Double[] obtenerRangoDerrama() {
         Object[] rango = propiedadAdicionalRepository.obtenerRangoDerrama();
         if (rango != null && rango.length == 2 && rango[0] != null && rango[1] != null) {
@@ -79,90 +47,28 @@ public class PropiedadAdicionalService {
         }
         return new Double[]{0.0, 1000.0};
     }
-    
+
     // ========================================================================
-    // MÉTODOS ADICIONALES
+    // OTROS METODOS
     // ========================================================================
-    
-    @Transactional(readOnly = true)
-    public List<PropiedadAdicional> findByInmuebleId(Integer inmuebleId) {
-        return propiedadAdicionalRepository.findByInmueble_Id(inmuebleId);
+
+    public Optional<PropiedadAdicional> findById(Integer id) {
+        return propiedadAdicionalRepository.findById(id);
     }
-    
-    @Transactional(readOnly = true)
-    public List<PropiedadAdicional> findByTipo(String tipo) {
-        return propiedadAdicionalRepository.findByTipo(tipo);
+
+    public PropiedadAdicional save(PropiedadAdicional propiedad) {
+        return propiedadAdicionalRepository.save(propiedad);
     }
-    
-    @Transactional(readOnly = true)
-    public List<PropiedadAdicional> findByInmuebleIdOrdenadas(Integer inmuebleId) {
-        return propiedadAdicionalRepository.findByInmueble_IdOrderByTipoAsc(inmuebleId);
+
+    public Optional<PropiedadAdicional> findByIdPropiedadAdicional(Integer id) {
+        return propiedadAdicionalRepository.findById(id);
     }
-    
-    @Transactional(readOnly = true)
-    public boolean existsById(Integer id) {
-        return propiedadAdicionalRepository.existsById(id);
+
+    public void deleteById(Integer id) {
+        propiedadAdicionalRepository.deleteById(id);
     }
-    
-    @Transactional(readOnly = true)
-    public long countByInmuebleId(Integer inmuebleId) {
-        return findByInmuebleId(inmuebleId).size();
-    }
-    
-    @Transactional
-    public void deleteByInmuebleId(Integer inmuebleId) {
-        List<PropiedadAdicional> propiedades = findByInmuebleId(inmuebleId);
-        propiedadAdicionalRepository.deleteAll(propiedades);
-    }
-    
-    @Transactional(readOnly = true)
-    public Double calcularDerramaTotalInmueble(Integer inmuebleId) {
-        List<PropiedadAdicional> propiedades = findByInmuebleId(inmuebleId);
-        return propiedades.stream()
-                .mapToDouble(PropiedadAdicional::getDerrama)
-                .sum();
-    }
-    
-    @Transactional(readOnly = true)
-    public boolean inmuebleTieneGaraje(Integer inmuebleId) {
-        List<PropiedadAdicional> propiedades = findByInmuebleId(inmuebleId);
-        return propiedades.stream()
-                .anyMatch(p -> p.getTipo().equalsIgnoreCase("Garaje"));
-    }
-    
-    @Transactional(readOnly = true)
-    public boolean inmuebleTieneTrastero(Integer inmuebleId) {
-        List<PropiedadAdicional> propiedades = findByInmuebleId(inmuebleId);
-        return propiedades.stream()
-                .anyMatch(p -> p.getTipo().equalsIgnoreCase("Trastero"));
-    }
-    
-    @Transactional(readOnly = true)
-    public String obtenerResumenPropiedades(Integer inmuebleId) {
-        List<PropiedadAdicional> propiedades = findByInmuebleId(inmuebleId);
-        
-        if (propiedades.isEmpty()) {
-            return "Sin propiedades adicionales";
-        }
-        
-        StringBuilder resumen = new StringBuilder();
-        for (PropiedadAdicional prop : propiedades) {
-            resumen.append(prop.getTipo()).append(", ");
-        }
-        
-        if (resumen.length() > 2) {
-            resumen.setLength(resumen.length() - 2);
-        }
-        
-        return resumen.toString();
-    }
-    
-    // ========================================================================
-    // ESTADÍSTICAS
-    // ========================================================================
-    
-    @Transactional(readOnly = true)
-    public Long contarTodas() {
-        return propiedadAdicionalRepository.count();
+
+    public List<PropiedadAdicional> findByInmuebleId(Integer id) {
+        return propiedadAdicionalRepository.findByInmueble_Id(id);
     }
 }

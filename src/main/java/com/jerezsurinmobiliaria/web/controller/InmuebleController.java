@@ -1,58 +1,54 @@
 package com.jerezsurinmobiliaria.web.controller;
 
 import com.jerezsurinmobiliaria.web.dto.InmuebleListDTO;
-import com.jerezsurinmobiliaria.web.model.Cita;
 import com.jerezsurinmobiliaria.web.model.Inmueble;
 import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
-import com.jerezsurinmobiliaria.web.model.VendedorInmueble;
-import com.jerezsurinmobiliaria.web.service.CitaService;
 import com.jerezsurinmobiliaria.web.service.InmueblePdfExporter;
 import com.jerezsurinmobiliaria.web.service.InmuebleService;
 import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
-import com.jerezsurinmobiliaria.web.service.VendedorInmuebleService;
-import jakarta.servlet.http.HttpServletResponse; // Cambiar a javax.servlet si usas Spring Boot antiguo
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/inmuebles")
-@RequiredArgsConstructor
 @Slf4j
 public class InmuebleController {
 
-    private final InmuebleService inmuebleService;
-    private final CitaService citaService;
-    private final VendedorInmuebleService vendedorInmuebleService;
-    private final PropiedadAdicionalService propiedadAdicionalService;
+    @Autowired
+    private InmuebleService inmuebleService;
 
-    // Inyección del servicio para generar PDFs
-    private final InmueblePdfExporter pdfExporter;
+    @Autowired
+    private PropiedadAdicionalService propiedadAdicionalService;
+
+    @Autowired
+    private InmueblePdfExporter pdfExporter;
+
+    // --- LISTADO Y FILTROS (GET /inmuebles) --------------------------------------
 
     /**
-     * Muestra el listado de inmuebles.
-     * Utiliza un DTO (InmuebleListDTO) para evitar LazyInitializationException en
-     * la vista.
+     * Muestra el listado de inmuebles con paginación, ordenamiento y filtros.
+     * La lógica de filtros y DTOs está centralizada en el Service.
      */
     @GetMapping
-    @Transactional(readOnly = true)
     public String list(
-            // Paginación
+            // Paginación y Ordenamiento
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-
-            // Ordenamiento
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir,
 
@@ -77,14 +73,14 @@ public class InmuebleController {
                 : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        // Se busca usando el método que devuelve DTOs
+        // Se busca usando el método que devuelve DTOs (lógica en el Service)
         Page<InmuebleListDTO> inmueblesPage = inmuebleService.buscarConFiltros(
                 direccion, tipoVivienda, tipoOperacion, precioMin, precioMax,
                 numHabMin, numHabMax, metrosMin, metrosMax, comunidad, estado,
                 (byte) 1, // Solo válidos
                 pageable);
 
-        // Datos para la vista (ahora son DTOs, pero la vista funciona igual)
+        // Datos para la vista (Paginación)
         model.addAttribute("inmuebles", inmueblesPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", inmueblesPage.getTotalPages());
@@ -98,15 +94,15 @@ public class InmuebleController {
         model.addAttribute("comunidades", inmuebleService.obtenerComunidades());
         model.addAttribute("estados", inmuebleService.obtenerEstados());
         Object[] rangoPrecio = inmuebleService.obtenerRangoPrecio();
+
+        // Lógica de valores por defecto movida al Service si es complejo, pero se deja
+        // el manejo de la array aquí por simplicidad.
         if (rangoPrecio != null && rangoPrecio.length >= 2) {
-            // Si hay dos o más elementos, usamos los dos primeros
             model.addAttribute("precioMinGlobal", rangoPrecio[0]);
             model.addAttribute("precioMaxGlobal", rangoPrecio[1]);
         } else {
-            // Si no hay suficientes elementos (por ejemplo, longitud 0 o 1),
-            // usamos valores por defecto para evitar el error.
             model.addAttribute("precioMinGlobal", 0.0);
-            model.addAttribute("precioMaxGlobal", 1000000.0); // Valor por defecto alto
+            model.addAttribute("precioMaxGlobal", 1000000.0);
         }
 
         // Mantener los valores de los filtros seleccionados
@@ -126,35 +122,34 @@ public class InmuebleController {
         return "inmuebles/list";
     }
 
+    // --- DETALLE (GET /inmuebles/{id}) ------------------------------------------
+
     /**
      * Muestra la vista de detalle.
-     * Carga cada colección de datos por separado para evitar errores y ser
-     * eficiente.
+     * Asume que el Service lanza ResourceNotFoundException si el ID no existe.
      */
     @GetMapping("/{id}")
-    @Transactional(readOnly = true)
     public String detail(@PathVariable Integer id, Model model, RedirectAttributes flash) {
 
-        // 1. Cargar la entidad principal
-        Inmueble inmueble = inmuebleService.findById(id);
+        // 3. El Service debe lanzar ResourceNotFoundException si el inmueble no existe.
+        // Si el método no encuentra el Inmueble, lanza una excepción que se captura
+        Optional<Inmueble> inmueble = inmuebleService.findById(id);
 
-        if (inmueble == null) {
+        if (!inmueble.isPresent()) {
+            log.warn("Inmueble no encontrado ID: {}", id);
             flash.addFlashAttribute("error", "El inmueble no existe");
             return "redirect:/inmuebles";
         }
 
-        // 2. Cargar cada colección de datos por separado
-        List<Cita> citas = citaService.findByInmuebleId(id);
-        List<VendedorInmueble> vendedores = vendedorInmuebleService.findByInmuebleId(id);
+        // Cargar colecciones relacionadas
+        // En un futuro cargar citas y vendedores
         List<PropiedadAdicional> propiedadesAdicionales = propiedadAdicionalService.findByInmuebleId(id);
 
-        // 3. Obtener conteo de interesados con una query
-        Long cantidadInteresados = inmuebleService.countInteresados(id);
+        // Obtener conteo de interesados con una query
+        Integer cantidadInteresados = inmuebleService.countInteresados(id);
 
-        // 4. Pasar todos los datos a la vista
-        model.addAttribute("inmueble", inmueble);
-        model.addAttribute("citas", citas);
-        model.addAttribute("vendedores", vendedores);
+        // Pasar todos los datos a la vista
+        model.addAttribute("inmueble", inmueble.get());
         model.addAttribute("propiedadesAdicionales", propiedadesAdicionales);
         model.addAttribute("cantidadInteresados", cantidadInteresados);
 
@@ -162,45 +157,40 @@ public class InmuebleController {
         return "inmuebles/detail";
     }
 
-    /**
-     * Genera y descarga un PDF con la ficha del inmueble, incluyendo propiedades
-     * adicionales.
-     * @return 
-     */
+    // --- EXPORTAR PDF (GET /inmuebles/{id}/pdf) ----------------------------------
+
     @GetMapping("/{id}/pdf")
-    public String exportToPDF(@PathVariable Integer id, HttpServletResponse response) {
+    public String exportToPDF(@PathVariable Integer id, HttpServletResponse response, RedirectAttributes flash)
+            throws IOException {
         log.info("Solicitud de exportación a PDF para inmueble ID: {}", id);
 
-        try {
-            // 1. Obtener Inmueble Principal
-            Inmueble inmueble = inmuebleService.findById(id);
-            if (inmueble == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "El inmueble no existe");
-                return "redirect:/inmuebles";
-            }
+        // 1. Obtener Inmueble Principal (Service lanza ResourceNotFoundException)
+        Optional<Inmueble> inmuebleOpt = inmuebleService.findById(id);
 
-            // 2. Cargar TODAS las relaciones necesarias para el PDF
-            List<Cita> citas = citaService.findByInmuebleId(id);
-            List<VendedorInmueble> vendedores = vendedorInmuebleService.findByInmuebleId(id);
-            List<PropiedadAdicional> propiedades = propiedadAdicionalService.findByInmuebleId(id);
-
-            // 3. Configurar respuesta HTTP
-            response.setContentType("application/pdf");
-            String headerKey = "Content-Disposition";
-            String headerValue = "attachment; filename=Ficha_Inmueble_" + id + ".pdf";
-            response.setHeader(headerKey, headerValue);
-
-            // 4. Generar PDF pasando la nueva lista
-            // Asegúrate de que el orden de los parámetros coincida con el servicio
-            pdfExporter.exportar(response, inmueble, vendedores, citas, propiedades);
-
-            log.info("PDF generado y enviado exitosamente para inmueble ID: {}", id);
-
-        } catch (Exception e) {
-            log.error("Error crítico al generar PDF para inmueble ID: {}", id, e);
+        if (!inmuebleOpt.isPresent()) {
+            log.warn("Inmueble no encontrado para PDF ID: {}", id);
+            flash.addFlashAttribute("error", "El inmueble no existe");
+            return "redirect:/inmuebles";
         }
-        return null; // La respuesta ya se ha manejado
+
+        Inmueble inmueble = inmuebleOpt.get();
+        // 2. Cargar las relaciones necesarias para el PDF
+        List<PropiedadAdicional> propiedades = propiedadAdicionalService.findByInmuebleId(id);
+
+        // 3. Configurar respuesta HTTP
+        response.setContentType("application/pdf");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=Ficha_Inmueble_" + id + ".pdf";
+        response.setHeader(headerKey, headerValue);
+
+        // 4. Generar PDF
+        pdfExporter.exportar(response, inmueble, propiedades);
+
+        log.info("PDF generado y enviado exitosamente para inmueble ID: {}", id);
+        return null; // La respuesta se maneja directamente con HttpServletResponse
     }
+
+    // --- CREAR (GET/POST /inmuebles) ---------------------------------------------
 
     /**
      * Muestra el formulario para crear un nuevo inmueble.
@@ -224,13 +214,13 @@ public class InmuebleController {
 
         try {
             Inmueble saved = inmuebleService.save(inmueble);
-            // Log éxito
+
             log.info("Inmueble creado exitosamente con ID: {}", saved.getId());
 
             flash.addFlashAttribute("success", "Inmueble creado exitosamente");
-            return "redirect:/inmuebles";
+            return "redirect:/inmuebles/" + saved.getId(); // Redirige al detalle
         } catch (Exception e) {
-            // Log error
+
             log.error("Error al crear el inmueble. Datos: {}", inmueble, e);
 
             flash.addFlashAttribute("error", "Error al crear el inmueble: " + e.getMessage());
@@ -238,17 +228,23 @@ public class InmuebleController {
         }
     }
 
+    // --- EDITAR (GET/POST /inmuebles/{id}/edit) ----------------------------------
+
     /**
      * Muestra el formulario para editar un inmueble existente.
      */
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Integer id, Model model, RedirectAttributes flash) {
-        Inmueble inmueble = inmuebleService.findById(id);
-        if (inmueble == null) {
+        // El Service lanza ResourceNotFoundException si no existe
+        Optional<Inmueble> inmueble = inmuebleService.findById(id);
+
+        if (!inmueble.isPresent()) {
+            log.warn("Inmueble no encontrado para edición ID: {}", id);
             flash.addFlashAttribute("error", "El inmueble no existe");
             return "redirect:/inmuebles";
         }
-        model.addAttribute("inmueble", inmueble);
+
+        model.addAttribute("inmueble", inmueble.get());
         model.addAttribute("title", "Editar Inmueble");
         model.addAttribute("action", "Actualizar");
         return "inmuebles/form";
@@ -265,13 +261,11 @@ public class InmuebleController {
             inmueble.setId(id);
             inmuebleService.save(inmueble);
 
-            // Log éxito
             log.info("Inmueble ID: {} actualizado exitosamente", id);
 
             flash.addFlashAttribute("success", "Inmueble actualizado exitosamente");
             return "redirect:/inmuebles/" + id;
         } catch (Exception e) {
-            // Log error
             log.error("Error al actualizar inmueble ID: {}", id, e);
 
             flash.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
@@ -279,29 +273,24 @@ public class InmuebleController {
         }
     }
 
+    // --- ELIMINAR (POST /inmuebles/{id}/delete)
+    // -----------------------------------
+
     /**
      * Procesa la eliminación de un inmueble.
+     * Asume que el Service lanza ResourceNotFoundException si el ID no existe.
      */
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Integer id, RedirectAttributes flash) {
 
         try {
-            Inmueble inmueble = inmuebleService.findById(id);
-            if (inmueble == null) {
-                log.warn("Intento de eliminar inmueble inexistente ID: {}", id);
-                flash.addFlashAttribute("error", "El inmueble no existe");
-                return "redirect:/inmuebles";
-            }
             inmuebleService.deleteById(id);
 
-            // Log éxito
             log.info("Inmueble ID: {} eliminado exitosamente", id);
 
             flash.addFlashAttribute("success", "Inmueble eliminado exitosamente");
         } catch (Exception e) {
-            // Log error
             log.error("Error crítico al eliminar inmueble ID: {}", id, e);
-
             flash.addFlashAttribute("error", "Error al eliminar: " + e.getMessage());
         }
         return "redirect:/inmuebles";

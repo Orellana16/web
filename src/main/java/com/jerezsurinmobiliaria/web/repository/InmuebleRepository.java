@@ -70,8 +70,8 @@ public interface InmuebleRepository extends JpaRepository<Inmueble, Integer> {
     // CONTEO Y ESTADÍSTICAS
     // ========================================================================
     
-    Long countByValido(Byte valido);
-    Long countByTipoOperacion(Byte tipoOperacion);
+    Integer countByValido(Byte valido);
+    Integer countByTipoOperacion(Byte tipoOperacion);
 
     // Contar inmuebles por tipo de vivienda
     @Query("SELECT i.tipoVivienda, COUNT(i) FROM Inmueble i GROUP BY i.tipoVivienda")
@@ -79,7 +79,7 @@ public interface InmuebleRepository extends JpaRepository<Inmueble, Integer> {
     
     // Contar interesados por inmueble
     @Query("SELECT COUNT(int) FROM Inmueble i JOIN i.interesados int WHERE i.id = :inmuebleId")
-    Long countInteresadosByInmuebleId(@Param("inmuebleId") Integer inmuebleId);
+    Integer countInteresadosByInmuebleId(@Param("inmuebleId") Integer inmuebleId);
 
     // Obtener los 5 inmuebles con más interesados
     @Query(value = "SELECT i FROM Inmueble i LEFT JOIN i.interesados interesados GROUP BY i ORDER BY COUNT(interesados) DESC")

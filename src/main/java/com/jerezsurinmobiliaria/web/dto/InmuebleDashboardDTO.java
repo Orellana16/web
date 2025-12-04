@@ -9,6 +9,6 @@ public class InmuebleDashboardDTO {
     private String tipoVivienda;
     private String direccion;
     private Double precio;
-    private Long numeroInteresados;
+    private Integer numeroInteresados;
 
 }

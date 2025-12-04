@@ -1,8 +1,12 @@
-package com.jerezsurinmobiliaria.web.dto; // Puedes crear una nueva carpeta 'dto'
+package com.jerezsurinmobiliaria.web.dto;
 
 import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@Data // Genera getters, setters, etc.
+@Data
+@AllArgsConstructor  // <--- Necesario para construir el DTO en el constructor de la consulta JPQL
+@NoArgsConstructor  // <--- Necesario para que Spring/Jackson no fallen al serializar
 public class InmuebleListDTO {
 
     private Integer id;
@@ -12,5 +16,5 @@ public class InmuebleListDTO {
     private Double precio;
     private Integer numHab;
     private Double metrosCuadrados;
-    private int cantidadPropiedadesAdicionales;
+    private int cantidadPropiedadesAdicionales; // Nota: SIZE() devuelve Integer, Java lo convierte a int automáticamente
 }

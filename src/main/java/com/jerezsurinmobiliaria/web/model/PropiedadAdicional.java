@@ -1,16 +1,12 @@
 package com.jerezsurinmobiliaria.web.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
 @Table(name = "propiedad_adicional")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class PropiedadAdicional {
 
     @Id
@@ -32,10 +28,11 @@ public class PropiedadAdicional {
     @ToString.Exclude
     private Inmueble inmueble;
 
-    public PropiedadAdicional(String tipo, Double derrama, String ibi, Inmueble inmueble) {
-        this.tipo = tipo;
-        this.derrama = derrama;
-        this.ibi = ibi;
-        this.inmueble = inmueble;
+    public Integer getInmuebleId() {
+        return inmueble != null ? inmueble.getId() : null;
+    }
+
+    public String getInmuebleDireccion() {
+        return inmueble != null ? inmueble.getDireccion() : null;
     }
 }
