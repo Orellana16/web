@@ -1,8 +1,6 @@
 package com.jerezsurinmobiliaria.web.service;
 
 import com.jerezsurinmobiliaria.web.dto.InmuebleListDTO;
-import com.jerezsurinmobiliaria.web.dto.InmuebleDashboardDTO;
-
 import com.jerezsurinmobiliaria.web.model.Inmueble;
 import com.jerezsurinmobiliaria.web.repository.InmuebleRepository;
 
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class InmuebleService {
@@ -34,28 +31,6 @@ public class InmuebleService {
                 direccion, tipoVivienda, tipoOperacion, precioMin, precioMax,
                 numHabMin, numHabMax, metrosMin, metrosMax, comunidad, estado, valido,
                 pageable);
-    }
-
-    // =======================================================================
-    // MÉTODO PARA EL DASHBOARD - TOP 5 INMUEBLES MÁS POPULARES
-    // ========================================================================
-    public List<InmuebleDashboardDTO> findTop5InmueblesConteoInteresados() {
-
-        // 1. Obtener los 5 Inmuebles más populares
-        List<Inmueble> topInmuebles = inmuebleRepository.findTop5ByOrderByInteresados();
-
-        // 2. Mapear y calcular el conteo de interesados para cada uno
-        return topInmuebles.stream().map(inmueble -> {
-            InmuebleDashboardDTO dto = new InmuebleDashboardDTO();
-            dto.setId(inmueble.getId().longValue());
-            dto.setTipoVivienda(inmueble.getTipoVivienda());
-            dto.setDireccion(inmueble.getDireccion());
-            dto.setPrecio(inmueble.getPrecio());
-            // Usar el método auxiliar para obtener el conteo de interesados
-            Integer numeroInteresados = inmuebleRepository.countInteresadosByInmuebleId(inmueble.getId());
-            dto.setNumeroInteresados(numeroInteresados);
-            return dto;
-        }).collect(Collectors.toList());
     }
 
     // =======================================================================
