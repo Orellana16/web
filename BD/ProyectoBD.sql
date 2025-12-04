@@ -73,19 +73,40 @@ CREATE TABLE `Vendedores` (
 ) ENGINE = InnoDB;
 
 -- =====================================================
--- TABLA: Interesados
+-- TABLA: Interesados (SIN CAMPOS DE SEGURIDAD/OAUTH2)
 -- =====================================================
 CREATE TABLE `Interesados` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `Nombre` VARCHAR(45) NOT NULL,
-  `Apellidos` VARCHAR(45) NOT NULL,
-  `Contacto` VARCHAR(45) NOT NULL,
+  `Nombre` VARCHAR(45) NULL,
+  `Apellidos` VARCHAR(45) NULL,
+  `Contacto` VARCHAR(45) NULL,
   `Demanda` VARCHAR(255) NULL,
   `Direccion` VARCHAR(100) NULL,
   `CP` VARCHAR(10) NULL,
   `NIF` VARCHAR(10) NULL UNIQUE,
   PRIMARY KEY (`id`),
   INDEX `idx_nif` (`NIF`)
+) ENGINE = InnoDB;
+
+-- =====================================================
+-- TABLA: Users (AÑADIDA TEMPORALMENTE PARA OAuth)
+-- =====================================================
+CREATE TABLE `Users` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(100) NOT NULL UNIQUE, 
+  `name` VARCHAR(100) NULL,
+  `password` VARCHAR(255) NULL,
+  `enabled` BOOLEAN NOT NULL DEFAULT TRUE,
+  `role` VARCHAR(20) NOT NULL DEFAULT 'USER',
+  `avatarUrl` VARCHAR(512) NULL,
+  `provider` VARCHAR(20) NULL,
+  `provider_id` VARCHAR(255) NULL,
+  `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastLogin` DATETIME NULL,
+  
+  PRIMARY KEY (`id`),
+  INDEX `idx_email` (`email`),
+  INDEX `idx_provider_id` (`provider`, `provider_id`)
 ) ENGINE = InnoDB;
 
 -- =====================================================
@@ -267,80 +288,6 @@ CREATE TABLE `Interesados_has_Operacion` (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) ENGINE = InnoDB;
-
--- =====================================================
--- TABLA: property (Web pública)
--- =====================================================
-CREATE TABLE `property` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(200) NOT NULL COMMENT 'Título descriptivo del inmueble',
-  `location` VARCHAR(150) NOT NULL COMMENT 'Ubicación',
-  `bedrooms` INT NOT NULL DEFAULT 0,
-  `bathrooms` INT NULL DEFAULT 0,
-  `price` DECIMAL(12,2) NOT NULL,
-  `operation` VARCHAR(20) NOT NULL COMMENT 'venta o alquiler',
-  `type` VARCHAR(30) NOT NULL COMMENT 'piso, chalet, atico, casa, vpo',
-  `zone` VARCHAR(50) NOT NULL COMMENT 'jerez, el-puerto, cadiz',
-  `image_url` VARCHAR(500) NULL,
-  `surface` DOUBLE NULL,
-  `description` TEXT NULL,
-  `featured` BOOLEAN DEFAULT FALSE,
-  `active` BOOLEAN DEFAULT TRUE,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  INDEX `idx_operation` (`operation`),
-  INDEX `idx_type` (`type`),
-  INDEX `idx_zone` (`zone`),
-  INDEX `idx_active` (`active`),
-  INDEX `idx_featured` (`featured`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- =====================================================
--- DATOS DE EJEMPLO: property
--- =====================================================
-INSERT INTO `property` 
-  (`name`, `location`, `bedrooms`, `bathrooms`, `price`, `operation`, `type`, `zone`, `image_url`, `surface`, `description`, `featured`, `active`) 
-VALUES
-  ('Piso exclusivo en el centro de Jerez', 'Calle Larga, Jerez de la Frontera', 3, 2, 215000.00, 'venta', 'piso', 'jerez', 
-   'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', 120, 
-   'Magnífico piso en pleno centro histórico, completamente reformado con materiales de primera calidad.', 
-   TRUE, TRUE),
-  
-  ('Chalet con piscina en zona residencial', 'Urbanización La Marquesa, Jerez', 4, 3, 385000.00, 'venta', 'chalet', 'jerez', 
-   'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800', 250, 
-   'Espectacular chalet independiente con jardín privado y piscina.', 
-   TRUE, TRUE),
-  
-  ('Ático con terraza y vistas panorámicas', 'Avenida Alcalde Álvaro Domecq, Jerez', 2, 2, 295000.00, 'venta', 'atico', 'jerez', 
-   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800', 95, 
-   'Precioso ático con terraza de 40m², vistas espectaculares.', 
-   TRUE, TRUE),
-  
-  ('Piso céntrico para estudiantes', 'Calle Porvera, Jerez', 2, 1, 550.00, 'alquiler', 'piso', 'jerez', 
-   'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', 70, 
-   'Piso amueblado ideal para estudiantes o pareja joven.', 
-   FALSE, TRUE),
-  
-  ('Casa tradicional en el centro de Cádiz', 'Calle San José, Cádiz', 3, 2, 325000.00, 'venta', 'casa', 'cadiz', 
-   'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800', 140, 
-   'Casa típica gaditana en pleno casco histórico.', 
-   TRUE, TRUE),
-  
-  ('Apartamento moderno en El Puerto', 'Paseo Marítimo, El Puerto de Santa María', 2, 1, 850.00, 'alquiler', 'piso', 'el-puerto', 
-   'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', 85, 
-   'Apartamento de nueva construcción con vistas al mar.', 
-   FALSE, TRUE),
-  
-  ('VPO nueva construcción en Jerez', 'Barrio de la Granja, Jerez', 3, 2, 125000.00, 'venta', 'vpo', 'jerez', 
-   'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800', 90, 
-   'Vivienda de protección oficial en fase de construcción.', 
-   FALSE, TRUE),
-  
-  ('Piso reformado cerca de la Universidad', 'Avenida de la Universidad, Jerez', 3, 1, 650.00, 'alquiler', 'piso', 'jerez', 
-   'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', 90, 
-   'Piso recién reformado, perfecto para estudiantes.', 
-   FALSE, TRUE);
 
 -- =====================================================
 -- RESTAURAR CONFIGURACIÓN

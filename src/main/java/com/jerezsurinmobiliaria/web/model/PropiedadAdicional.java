@@ -38,8 +38,4 @@ public class PropiedadAdicional {
         this.ibi = ibi;
         this.inmueble = inmueble;
     }
-
-    public Integer getInmuebleId() {
-        return inmueble != null ? inmueble.getId() : null;
-    }
 }

@@ -105,20 +105,16 @@ public class InmuebleService {
         List<Inmueble> topInmuebles = findTop5ByOrderByInteresados(); 
 
         // 2. Mapear y calcular el conteo de interesados para cada uno
-        return topInmuebles.stream()
-            .map(inmueble -> {
-                // LLAMAMOS AL CONTEO POR ID (Problema N+1, pero encapsulamos la lógica aquí)
-                Long numeroInteresados = countInteresados(inmueble.getId());
-                
-                // Creamos el DTO usando el constructor @AllArgsConstructor de Lombok
-                return new InmuebleDashboardDTO(
-                    inmueble.getId().longValue(), // Asumiendo que tu DTO usa Long
-                    inmueble.getTipoVivienda(),
-                    inmueble.getDireccion(),
-                    inmueble.getPrecio(), // Asegúrate de que el tipo de precio coincida (BigDecimal o Double)
-                    numeroInteresados 
-                );
-            })
-            .collect(Collectors.toList());
+        return topInmuebles.stream().map(inmueble -> {
+            InmuebleDashboardDTO dto = new InmuebleDashboardDTO();
+            dto.setId(inmueble.getId().longValue());
+            dto.setTipoVivienda(inmueble.getTipoVivienda());
+            dto.setDireccion(inmueble.getDireccion());
+            dto.setPrecio(inmueble.getPrecio());
+            // Usar el método auxiliar para obtener el conteo de interesados
+            Long numeroInteresados = countInteresados(inmueble.getId());
+            dto.setNumeroInteresados(numeroInteresados);
+            return dto;
+        }).collect(Collectors.toList());
     }
 }
