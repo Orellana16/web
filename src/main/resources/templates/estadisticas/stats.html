@@ -17,13 +17,12 @@
             <span class="text-secondary fw-light">Resumen general y métricas clave de la inmobiliaria</span>
         </div>
 
+        <!-- TARJETAS DE MÉTRICAS -->
         <div class="row g-4 mb-5">
-
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm border-start border-5 border-primary h-100 rounded-3">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div
-                            class="bg-primary bg-opacity-10 p-3 rounded-3 me-4 text-primary d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-4 text-primary d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi bi-house-fill fs-3"></i>
                         </div>
                         <div>
@@ -37,8 +36,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm border-start border-5 border-warning h-100 rounded-3">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div
-                            class="bg-warning bg-opacity-10 p-3 rounded-3 me-4 text-warning d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-3 me-4 text-warning d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi bi-people-fill fs-3"></i>
                         </div>
                         <div>
@@ -52,8 +50,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm border-start border-5 border-info h-100 rounded-3">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div
-                            class="bg-info bg-opacity-10 p-3 rounded-3 me-4 text-info d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-3 me-4 text-info d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi bi-calendar-check-fill fs-3"></i>
                         </div>
                         <div>
@@ -67,14 +64,14 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm border-start border-5 border-success h-100 rounded-3">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div
-                            class="bg-success bg-opacity-10 p-3 rounded-3 me-4 text-success d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-3 me-4 text-success d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi bi-cash-coin fs-3"></i>
                         </div>
                         <div>
                             <p class="text-secondary fw-semibold mb-1 text-uppercase small">Valor de Cartera</p>
                             <h3 class="fw-bolder mb-0 text-success"
-                                th:text="|${#numbers.formatDecimal(valorCartera ?: 0, 0, 'POINT', 0, 'COMMA')} €|">0 €
+                                th:text="|${#numbers.formatDecimal(valorCartera ?: 0, 0, 'POINT', 0, 'COMMA')} €|">
+                                0 €
                             </h3>
                         </div>
                     </div>
@@ -84,16 +81,17 @@
 
         <hr class="my-5">
 
-        <div class="row g-4">
-            <div class="col-12 mb-4">
-                <div class="card shadow-sm border-0 h-100 rounded-3">
+        <!-- GRÁFICO DE DISTRIBUCIÓN POR TIPO -->
+        <div class="row g-4 mb-5">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-3">
                     <div class="card-header bg-white py-3 border-bottom-0">
                         <h5 class="mb-0 fw-bold text-secondary">
                             <i class="bi bi-pie-chart-fill me-2 text-primary"></i> Distribución de Inmuebles por Tipo
                         </h5>
                     </div>
-                    <div class="card-body d-flex justify-content-center align-items-center">
-                        <div id="chartContainer" style="height: 300px; width: 100%;">
+                    <div class="card-body">
+                        <div style="height: 380px; width: 100%;">
                             <canvas id="chartTipos"></canvas>
                         </div>
                     </div>
@@ -101,9 +99,10 @@
             </div>
         </div>
 
+        <!-- TOP 5 INMUEBLES MÁS POPULARES -->
         <div class="row g-4">
-            <div class="col-12 mb-4">
-                <div class="card shadow-sm border-0 h-100 rounded-3">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-3">
                     <div class="card-header bg-white py-3 border-bottom-0">
                         <h5 class="mb-0 fw-bold text-secondary">
                             <i class="bi bi-trophy-fill me-2 text-warning"></i> Top 5 Inmuebles Más Populares
@@ -125,16 +124,13 @@
                                     <tr th:each="inm : ${topInmuebles}">
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center">
-                                                <div
-                                                    class="bg-primary bg-opacity-10 rounded-3 p-2 me-3 text-primary flex-shrink-0">
+                                                <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3 text-primary flex-shrink-0">
                                                     <i class="bi bi-building fs-5"></i>
                                                 </div>
                                                 <div>
-                                                    <span class="fw-bold d-block text-truncate"
-                                                        style="max-width: 140px;" th:text="|Ref #${inm.id}|">Ref
-                                                        #1</span>
-                                                    <small class="text-secondary fw-light"
-                                                        th:text="${inm.direccion}">Dirección</small>
+                                                    <span class="fw-bold d-block text-truncate" style="max-width: 140px;"
+                                                        th:text="|Ref #${inm.id}|">Ref #1</span>
+                                                    <small class="text-secondary fw-light" th:text="${inm.direccion}">Dirección</small>
                                                 </div>
                                             </div>
                                         </td>
@@ -154,10 +150,9 @@
                                                 class="btn btn-sm btn-outline-primary rounded-pill">Ver</a>
                                         </td>
                                     </tr>
-                                    <tr th:if="${topInmuebles == null or topInmuebles.isEmpty()}">
+                                    <tr th:if="${topInmuebles == null or #lists.isEmpty(topInmuebles)}">
                                         <td colspan="5" class="text-center text-secondary py-5">
-                                            <i class="bi bi-info-circle me-1"></i> No hay inmuebles populares en este
-                                            momento.
+                                            <i class="bi bi-info-circle me-1"></i> No hay inmuebles populares en este momento.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -170,37 +165,71 @@
 
     </div>
 
+    <!-- SCRIPTS COMUNES DEL LAYOUT -->
     <div th:replace="~{layout/base :: scripts}"></div>
 
+    <!-- CHART.JS (IMPORTANTE: CARGAR ANTES DEL SCRIPT PERSONALIZADO) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- GRÁFICO DE DISTRIBUCIÓN POR TIPO -->
     <script th:inline="javascript">
-        const labels = /*[[ ${chartLabels} ]]*/[];
-        const dataValues = /*[[ ${chartData} ]]*/[];
+        /*<![CDATA[*/
+        document.addEventListener("DOMContentLoaded", function() {
+            const labels = /*[[ ${chartLabels} ]]*/ [];
+            const dataValues = /*[[ ${chartData} ]]*/ [];
 
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Inmuebles por mes',
-                    data: dataValues,
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            const ctx = document.getElementById('chartTipos').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Inmuebles',
+                        data: dataValues,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)',
+                            'rgba(255, 159, 64, 0.8)',
+                            'rgba(199, 199, 199, 0.8)'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 3,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${context.label}: ${value} inmuebles (${percentage}%)`;
+                                }
+                            }
+                        }
                     }
                 }
-            }
+            });
         });
+        /*]]>*/
     </script>
-</body>
 
+</body>
 </html>

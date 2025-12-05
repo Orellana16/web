@@ -4,6 +4,9 @@ import com.jerezsurinmobiliaria.web.dto.EstadisticasPageDTO;
 import com.jerezsurinmobiliaria.web.model.Inmueble;
 import com.jerezsurinmobiliaria.web.repository.InmuebleRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +30,10 @@ public class EstadisticasService {
         Double valorCartera = inmuebleRepository.sumarPrecioTotal();
 
         // TODO: Cambiar por citaRepository.count() cuando exista
-        long totalCitas = 0; 
+        long totalCitas = 5; 
         
         // TODO: Cambiar por interesadoRepository.count() cuando exista
-        long totalInteresados = 0; 
+        long totalInteresados = 5; 
 
         // 2. Datos para el Gráfico (Transformación de DB a Listas para JS)
         List<Object[]> resultadosGrafica = inmuebleRepository.contarInmueblesPorTipo();
@@ -48,7 +51,8 @@ public class EstadisticasService {
 
         // 3. Top Inmuebles
         // Usamos la query nativa en vez de traer todos y ordenar en Java
-        List<Inmueble> topInmuebles = inmuebleRepository.findTop5ByOrderByInteresados();
+        Pageable top5 = PageRequest.of(0, 5);
+        List<Inmueble> topInmuebles = inmuebleRepository.findTop5ByInmuebles(top5);
 
         // 4. Construir DTO
         return EstadisticasPageDTO.builder()
