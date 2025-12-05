@@ -1,484 +1,139 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle del Inmueble</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Bootstrap Icons CDN (utilizado en el HTML original) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        /* Configuración global de Tailwind para usar la fuente Inter */
-        html { font-family: 'Inter', sans-serif; }
-        /* Estilos base para la simulación de Bootstrap */
-        .card {
-            background-color: white;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            border-radius: 0.75rem;
-            overflow: hidden;
-        }
-        .card-header-primary {
-            background-color: #2563eb;
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #1d4ed8;
-        }
-        .card-header-success {
-            background-color: #16a34a;
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #15803d;
-        }
-        .card-header-warning {
-            background-color: #fbbf24;
-            color: #111827;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #f59e0b;
-        }
-        .card-header-secondary {
-            background-color: #4b5563;
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #374151;
-        }
-        .btn-secondary-custom {
-            background-color: #6b7280;
-            color: white;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            display: inline-flex;
-            text-decoration: none;
-        }
-        .btn-secondary-custom:hover {
-            background-color: #4b5563;
-        }
-        .table-custom {
-            width: 100%;
-            border-collapse: collapse;
-            border-top: 1px solid #e5e7eb;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .table-header-custom {
-            background-color: #f9fafb;
-        }
-        .table-row-custom:nth-child(even) {
-            background-color: #f9fafb;
-        }
-        .table-cell-custom {
-            padding: 0.75rem 1.5rem;
-            white-space: nowrap;
-            font-size: 0.875rem;
-            color: #374151;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-    <div id="messages-container" class="mb-4">
-        <!-- Simulación de mensajes de alerta/éxito -->
-    </div>
+<head th:replace="~{layout/base :: head(${title})}"></head>
 
-    <div class="container mx-auto max-w-7xl">
-        <!-- Botón volver -->
-        <a href="#" class="btn-secondary-custom mb-6 inline-flex items-center space-x-2">
+<body>
+    <header th:replace="~{layout/base :: navbar}"></header>
+
+    <div class="container mt-5 mb-5">
+        
+        <a th:href="@{/inmuebles}" class="btn btn-secondary mb-4">
             <i class="bi bi-arrow-left"></i>
             <span>Volver a Inmuebles</span>
         </a>
 
-        <!-- Contenedor principal para renderizar el contenido -->
-        <div id="app-container">
-            <!-- El contenido se cargará aquí por JavaScript -->
-        </div>
+        <div th:replace="~{layout/base :: messages}"></div>
 
+        <section class="card mb-4">
+            <div class="card-header card-header-primary d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="bi bi-house-door-fill"></i>
+                    <span>Detalle del Inmueble</span>
+                </h4>
+                <div class="btn-group" role="group">
+                    <a th:href="@{/inmuebles/{id}/pdf(id=${inmueble.id})}" target="_blank"
+                        title="Descargar ficha en PDF" class="btn btn-sm btn-danger">
+                        <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+                    </a>
+                    <a th:href="@{/inmuebles/{id}/edit(id=${inmueble.id})}" title="Editar Inmueble" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <form th:action="@{/inmuebles/{id}/delete(id=${inmueble.id})}" method="post" class="d-inline"
+                        onsubmit="return confirmarEliminacion('¿Está seguro de que desea eliminar este inmueble?');">
+                        <button type="submit" title="Eliminar Inmueble" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="grid-2col">
+                    <div>
+                        <p><strong>ID:</strong> <span th:text="${inmueble.id}">-</span></p>
+                        <p><strong>Dirección:</strong> <span th:text="${inmueble.direccion}">-</span></p>
+                        <p><strong>Tipo:</strong> <span th:text="${inmueble.tipoVivienda}">-</span></p>
+                        <p><strong>Operación:</strong>
+                            <span th:classappend="${inmueble.tipoOperacion == 0} ? 'badge bg-success' : 'badge bg-info'"
+                                th:text="${inmueble.tipoOperacion == 0} ? 'Venta' : 'Alquiler'">-</span>
+                        </p>
+                        <p><strong>Precio:</strong> 
+                            <span class="font-weight-bold text-nowrap" 
+                                th:text="${#numbers.formatCurrency(inmueble.precio)}">0,00 €</span>
+                        </p>
+                        <p><strong>Estado:</strong> <span th:text="${inmueble.estado}">-</span></p>
+                    </div>
+                    <div>
+                        <p><strong>Habitaciones:</strong> <span th:text="${inmueble.numHab}">-</span></p>
+                        <p><strong>Baños:</strong> <span th:text="${inmueble.numBanos}">-</span></p>
+                        <p><strong>m²:</strong> <span th:text="${inmueble.metrosCuadrados}">-</span></p>
+                        <p><strong>Comunidad:</strong> <span th:text="${inmueble.comunidad}">-</span></p>
+                        <p><strong>Cert. Energía:</strong> <span th:text="${inmueble.certificadoEnergia}">-</span></p>
+                        <p><strong>IBI:</strong> <span th:text="${inmueble.ibi}">-</span></p>
+                    </div>
+                </div>
+                
+                <div class="anotaciones-section mt-3" th:if="${inmueble.anotaciones != null and inmueble.anotaciones != ''}">
+                    <p class="mb-1"><strong>Anotaciones:</strong></p>
+                    <p class="text-muted" th:text="${inmueble.anotaciones}">-</p>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+
+        <section class="card">
+            <div class="card-header card-header-secondary d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-boxes"></i>
+                    <span>Propiedades Adicionales</span>
+                    <span class="badge bg-secondary ms-2" th:text="${propiedadesAdicionales.size()}">0</span>
+                </h5>
+                <a th:href="@{/propiedades/new/inmueble/{id}(id=${inmueble.id})}" class="btn btn-sm btn-light">
+                    <i class="bi bi-plus-circle"></i> <span>Añadir</span>
+                </a>
+            </div>
+            
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0" th:if="${propiedadesAdicionales.size() > 0}">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo</th>
+                                <th>Derrama</th>
+                                <th>IBI</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="propiedad : ${propiedadesAdicionales}">
+                                <td th:text="${propiedad.id}">-</td>
+                                <td th:text="${propiedad.tipo}">-</td>
+                                <td class="font-weight-bold text-nowrap" 
+                                    th:text="${#numbers.formatCurrency(propiedad.derrama)}">0,00 €</td>
+                                <td th:text="${propiedad.ibi}">-</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a th:href="@{/propiedades/{id}(id=${propiedad.id})}" title="Ver detalle" class="btn btn-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:href="@{/propiedades/{id}/edit(id=${propiedad.id})}" title="Editar" class="btn btn-warning">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form th:action="@{/propiedades/{id}/delete(id=${propiedad.id})}" method="post" class="d-inline"
+                                            onsubmit="return confirmarEliminacion('¿Está seguro de que desea eliminar esta propiedad?');">
+                                            <button type="submit" title="Eliminar" class="btn btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-info text-center m-3" th:if="${propiedadesAdicionales.size() == 0}">
+                    <i class="bi bi-info-circle"></i> No hay propiedades adicionales.
+                    <a th:href="@{/propiedades/new/inmueble/{id}(id=${inmueble.id})}" class="alert-link">Añadir la primera</a>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <script>
-        // =================================================================
-        // 1. MOCK DATA (Simulación de datos del servidor)
-        // =================================================================
-
-        const mockData = {
-            inmueble: {
-                id: 12345,
-                direccion: "Avda. de la Libertad, 45, 3ºA",
-                tipoVivienda: "Piso",
-                tipoOperacion: 0, // 0: Venta, 1: Alquiler
-                precio: "185.000,00",
-                estado: "Disponible",
-                numHab: 3,
-                numBanos: 2,
-                metrosCuadrados: 95,
-                comunidad: "Andalucía",
-                certificadoEnergia: "C",
-                ibi: "550,00 €/año",
-                anotaciones: "Muy luminoso y reformado. Vistas a la montaña. Ideal para familias o inversores."
-            },
-            vendedores: [
-                {
-                    vendedor: {
-                        nombreCompleto: "Juan Pérez García",
-                        nif: "12345678A",
-                        contacto: "666 777 888"
-                    },
-                    representante: "Notaría García"
-                },
-                {
-                    vendedor: {
-                        nombreCompleto: "María López Ruiz",
-                        nif: "87654321B",
-                        contacto: "600 111 222"
-                    },
-                    representante: "Familiar Directo"
-                }
-            ],
-            citas: [
-                {
-                    fecha: new Date(2025, 11, 10, 10, 0), // 10 de Dic a las 10:00
-                    hora: new Date(2025, 11, 10, 10, 0),
-                    interesado: {
-                        nombreCompleto: "Alberto Gómez",
-                        contacto: "650 999 888"
-                    },
-                    trabajador: {
-                        nombreCompleto: "Carlos Ruiz"
-                    },
-                    anotaciones: "Primera visita. Llamar antes de ir."
-                },
-                {
-                    fecha: new Date(2025, 11, 15, 17, 30), // 15 de Dic a las 17:30
-                    hora: new Date(2025, 11, 15, 17, 30),
-                    interesado: {
-                        nombreCompleto: "Elena Díaz",
-                        contacto: "678 123 456"
-                    },
-                    trabajador: {
-                        nombreCompleto: "Carlos Ruiz"
-                    },
-                    anotaciones: null
-                }
-            ],
-            cantidadInteresados: 5,
-            propiedadesAdicionales: [
-                { id: 101, tipo: "Garaje", derrama: 50.00, ibi: "100 €/año" },
-                { id: 102, tipo: "Trastero", derrama: 10.50, ibi: "30 €/año" }
-            ]
-        };
-
-        // =================================================================
-        // 2. UTILIDADES
-        // =================================================================
-
-        /**
-         * Simula la función de confirmación de eliminación (sustituye window.confirm)
-         * @param {string} mensaje
-         * @returns {boolean}
-         */
-        function confirmarEliminacion(mensaje) {
-            console.log("Simulando confirmación:", mensaje);
-            // En un entorno real, aquí se mostraría un modal de confirmación.
-            // Para la simulación, retornamos true para ejecutar la acción.
-            return true;
-        }
-
-        // Formato de fecha y hora
-        const dateFormatter = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        const timeFormatter = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-        // =================================================================
-        // 3. RENDERIZADO DEL HTML
-        // =================================================================
-
-        function renderInmuebleDetail(data) {
-            const { inmueble, vendedores, citas, propiedadesAdicionales, cantidadInteresados } = data;
-
-            // --- Tarjeta de Detalle del Inmueble ---
-            const operacionBadge = inmueble.tipoOperacion === 0
-                ? '<span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-green-500 text-white shadow">Venta</span>'
-                : '<span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-sky-500 text-white shadow">Alquiler</span>';
-
-            const detalleCard = `
-                <div class="card mb-8">
-                    <div class="card-header-primary">
-                        <h4 class="text-xl font-semibold flex items-center space-x-2">
-                            <i class="bi bi-house-door-fill"></i>
-                            <span>Detalle del Inmueble</span>
-                        </h4>
-                        <div class="flex space-x-2">
-                            <!-- Botones de Acción -->
-                            <a href="/inmuebles/${inmueble.id}/pdf" target="_blank" title="Descargar ficha en PDF" 
-                                class="bg-white text-red-600 hover:bg-gray-100 font-bold py-1.5 px-3 rounded-lg text-sm transition duration-150 shadow-md">
-                                <i class="bi bi-file-earmark-pdf-fill"></i> PDF
-                            </a>
-                            <a href="/inmuebles/${inmueble.id}/edit" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 px-3 rounded-lg text-sm transition duration-150 shadow-md">
-                                <i class="bi bi-pencil"></i> Editar
-                            </a>
-                            <form onsubmit="return confirmarEliminacion('¿Eliminar este inmueble?');" class="inline" method="post" action="/inmuebles/${inmueble.id}/delete">
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-3 rounded-lg text-sm transition duration-150 shadow-md">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="card-body p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                            <div>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">ID:</strong> <span class="text-gray-600">${inmueble.id}</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Dirección:</strong> <span class="text-gray-600">${inmueble.direccion}</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Tipo:</strong> <span class="text-gray-600">${inmueble.tipoVivienda}</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Operación:</strong> ${operacionBadge}</p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Precio:</strong> <span class="text-gray-600 font-semibold">${inmueble.precio} €</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Estado:</strong> <span class="text-gray-600">${inmueble.estado}</span></p>
-                            </div>
-                            <div>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Habitaciones:</strong> <span class="text-gray-600">${inmueble.numHab}</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Baños:</strong> <span class="text-gray-600">${inmueble.numBanos}</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">m²:</strong> <span class="text-gray-600">${inmueble.metrosCuadrados}</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Comunidad:</strong> <span class="text-gray-600">${inmueble.comunidad}</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Cert. Energía:</strong> <span class="text-gray-600">${inmueble.certificadoEnergia}</span></p>
-                                <p class="text-sm"><strong class="font-medium text-gray-800">IBI:</strong> <span class="text-gray-600">${inmueble.ibi}</span></p>
-                            </div>
-                        </div>
-                        ${inmueble.anotaciones ? `
-                            <div class="mt-4 pt-4 border-t border-gray-200">
-                                <p class="text-sm"><strong class="font-medium text-gray-800">Anotaciones:</strong></p>
-                                <p class="text-sm text-gray-500 mt-1">${inmueble.anotaciones}</p>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-
-            // --- Tarjeta de Vendedores ---
-            const vendedoresTable = vendedores.length > 0 ? `
-                <div class="overflow-x-auto">
-                    <table class="table-custom">
-                        <thead class="table-header-custom">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Completo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIF</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Representante</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            ${vendedores.map(vi => `
-                                <tr class="table-row-custom">
-                                    <td class="table-cell-custom">${vi.vendedor.nombreCompleto}</td>
-                                    <td class="table-cell-custom">${vi.vendedor.nif}</td>
-                                    <td class="table-cell-custom">${vi.vendedor.contacto}</td>
-                                    <td class="table-cell-custom">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            ${vi.representante}
-                                        </span>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            ` : `
-                <div class="p-4 bg-blue-50 text-blue-800 rounded-lg text-center">
-                    <i class="bi bi-info-circle text-lg"></i> No hay vendedores asignados a este inmueble
-                </div>
-            `;
-
-            const vendedoresCard = `
-                <div class="card mb-8">
-                    <div class="card-header-primary">
-                        <h5 class="text-lg font-semibold flex items-center space-x-2">
-                            <i class="bi bi-person-badge-fill"></i>
-                            <span>Vendedores del Inmueble</span>
-                            <span class="ml-2 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-white text-gray-900 shadow">${vendedores.length}</span>
-                        </h5>
-                    </div>
-                    <div class="card-body p-6">
-                        ${vendedoresTable}
-                    </div>
-                </div>
-            `;
-
-            // --- Tarjeta de Citas Programadas ---
-            const citasTable = citas.length > 0 ? `
-                <div class="overflow-x-auto">
-                    <table class="table-custom">
-                        <thead class="table-header-custom">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interesado</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trabajador</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Anotaciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            ${citas.map(cita => `
-                                <tr class="table-row-custom">
-                                    <td class="table-cell-custom">
-                                        <i class="bi bi-calendar3 text-green-600 mr-1"></i>
-                                        <span>${dateFormatter.format(cita.fecha)}</span>
-                                    </td>
-                                    <td class="table-cell-custom">
-                                        <i class="bi bi-clock text-green-600 mr-1"></i>
-                                        <span>${timeFormatter.format(cita.hora)}</span>
-                                    </td>
-                                    <td class="table-cell-custom">${cita.interesado.nombreCompleto}</td>
-                                    <td class="table-cell-custom">${cita.interesado.contacto}</td>
-                                    <td class="table-cell-custom">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
-                                            ${cita.trabajador.nombreCompleto}
-                                        </span>
-                                    </td>
-                                    <td class="table-cell-custom">
-                                        <small class="text-gray-500">${cita.anotaciones || '-'}</small>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            ` : `
-                <div class="p-4 bg-green-50 text-green-800 rounded-lg text-center">
-                    <i class="bi bi-info-circle text-lg"></i> No hay citas programadas para este inmueble
-                </div>
-            `;
-
-            const citasCard = `
-                <div class="card mb-8">
-                    <div class="card-header-success">
-                        <h5 class="text-lg font-semibold flex items-center space-x-2">
-                            <i class="bi bi-calendar-check-fill"></i>
-                            <span>Citas Programadas</span>
-                            <span class="ml-2 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-white text-gray-900 shadow">${citas.length}</span>
-                        </h5>
-                    </div>
-                    <div class="card-body p-6">
-                        ${citasTable}
-                    </div>
-                </div>
-            `;
-
-            // --- Tarjeta de Interesados (Favoritos) ---
-            let interesadosText;
-            if (cantidadInteresados === 0) {
-                interesadosText = "Nadie ha guardado este inmueble como favorito aún";
-            } else if (cantidadInteresados === 1) {
-                interesadosText = "usuario ha guardado este inmueble en favoritos";
-            } else {
-                interesadosText = "usuarios han guardado este inmueble en favoritos";
-            }
-
-            const interesadosCard = `
-                <div class="card mb-8">
-                    <div class="card-header-warning">
-                        <h5 class="text-lg font-semibold flex items-center space-x-2">
-                            <i class="bi bi-heart-fill text-red-600"></i>
-                            <span>Interesados (Favoritos)</span>
-                        </h5>
-                    </div>
-                    <div class="card-body p-6 text-center">
-                        <div class="flex flex-col items-center justify-center min-h-20">
-                            <h2 class="text-6xl font-extrabold text-gray-900 mb-2">${cantidadInteresados}</h2>
-                            <p class="text-lg font-medium text-gray-700">
-                                <span class="font-bold">${cantidadInteresados > 0 ? cantidadInteresados : ''}</span>
-                                ${interesadosText}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-
-            // --- Tarjeta de Propiedades Adicionales ---
-            const propiedadesTable = propiedadesAdicionales.length > 0 ? `
-                <div class="overflow-x-auto">
-                    <table class="table-custom">
-                        <thead class="table-header-custom">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Derrama</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IBI</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            ${propiedadesAdicionales.map(p => `
-                                <tr class="table-row-custom">
-                                    <td class="table-cell-custom">${p.id}</td>
-                                    <td class="table-cell-custom">${p.tipo}</td>
-                                    <td class="table-cell-custom font-medium">${p.derrama.toFixed(2).replace('.', ',')} €</td>
-                                    <td class="table-cell-custom">${p.ibi}</td>
-                                    <td class="table-cell-custom">
-                                        <div class="flex space-x-1">
-                                            <a href="/propiedades/${p.id}" title="Ver detalle" class="bg-sky-500 hover:bg-sky-600 text-white p-1 rounded-md text-xs shadow-md">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a href="/propiedades/${p.id}/edit" title="Editar" class="bg-amber-500 hover:bg-amber-600 text-white p-1 rounded-md text-xs shadow-md">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <form onsubmit="return confirmarEliminacion('¿Eliminar?');" class="inline" method="post" action="/propiedades/${p.id}/delete">
-                                                <button type="submit" title="Eliminar" class="bg-red-600 hover:bg-red-700 text-white p-1 rounded-md text-xs shadow-md">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            ` : `
-                <div class="p-4 bg-gray-100 text-gray-700 rounded-lg text-center">
-                    <i class="bi bi-info-circle text-lg"></i> No hay propiedades adicionales.
-                    <a href="/propiedades/new/inmueble/${inmueble.id}" class="text-blue-600 hover:text-blue-800 font-medium">Añadir la primera</a>
-                </div>
-            `;
-
-            const propiedadesCard = `
-                <div class="card mb-8">
-                    <div class="card-header-secondary">
-                        <h5 class="text-lg font-semibold flex items-center space-x-2">
-                            <i class="bi bi-boxes"></i>
-                            <span>Propiedades Adicionales</span>
-                            <span class="ml-2 inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-white text-gray-900 shadow">${propiedadesAdicionales.length}</span>
-                        </h5>
-                        <a href="/propiedades/new/inmueble/${inmueble.id}" class="bg-white text-gray-800 hover:bg-gray-100 font-bold py-1.5 px-3 rounded-lg text-sm transition duration-150 shadow-md flex items-center space-x-1">
-                            <i class="bi bi-plus-circle"></i> <span>Añadir</span>
-                        </a>
-                    </div>
-                    <div class="card-body p-6">
-                        ${propiedadesTable}
-                    </div>
-                </div>
-            `;
-
-            // Ensamblar todo el HTML
-            const fullHtml = detalleCard + vendedoresCard + citasCard + interesadosCard + propiedadesCard;
-            document.getElementById('app-container').innerHTML = fullHtml;
-        }
-
-        // Ejecutar el renderizado al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            renderInmuebleDetail(mockData);
-        });
-    </script>
+    <div th:replace="~{layout/base :: scripts}"></div>
 </body>
+
 </html>

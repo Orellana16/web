@@ -4,192 +4,203 @@
 <head th:replace="~{layout/base :: head(${title})}"></head>
 
 <body>
-    <div th:replace="~{layout/base :: navbar}"></div>
-    <div th:replace="~{layout/base :: messages}"></div>
+    <div th:replace="~{layout/base :: navbar}"></div>
 
-    <div class="container my-5">
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-            <h2 class="text-primary fw-bolder">
-                <i class="bi bi-speedometer2 me-2"></i> Dashboard de Estadísticas
-            </h2>
-            <span class="text-secondary fw-light">Resumen general de la inmobiliaria</span>
-        </div>
+    <div th:replace="~{layout/base :: messages}"></div>
 
-        <div class="row g-4 mb-5">
-            <!-- Tarjeta: Total Inmuebles -->
-            <div class="col-md-4">
-                <div class="card shadow-custom-md border-0 h-100 rounded-lg transition-normal">
-                    <div class="card-body d-flex align-items-center p-4">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-xl me-4 text-primary d-flex align-items-center justify-content-center flex-shrink-0">
-                            <i class="bi bi-house-fill fs-3"></i>
-                        </div>
-                        <div>
-                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Total Inmuebles</p>
-                            <h2 class="fw-bolder mb-0" th:text="${totalInmuebles}">0</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="container my-5">
 
-            <!-- Tarjeta: Interesados (Ahora ocupa el segundo lugar) -->
-            <div class="col-md-4">
-                <div class="card shadow-custom-md border-0 h-100 rounded-lg transition-normal">
-                    <div class="card-body d-flex align-items-center p-4">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-xl me-4 text-warning d-flex align-items-center justify-content-center flex-shrink-0">
-                            <i class="bi bi-people-fill fs-3"></i>
-                        </div>
-                        <div>
-                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Interesados</p>
-                            <h2 class="fw-bolder mb-0" th:text="${totalInteresados}">0</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <h2 class="text-primary fw-bolder">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard de Estadísticas
+            </h2>
+            <span class="text-secondary fw-light">Resumen general y métricas clave de la inmobiliaria</span>
+        </div>
 
-            <!-- Tarjeta: Valor Cartera -->
-            <div class="col-md-4">
-                <div class="card shadow-custom-md border-0 h-100 rounded-lg transition-normal">
-                    <div class="card-body d-flex align-items-center p-4">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-xl me-4 text-info d-flex align-items-center justify-content-center flex-shrink-0">
-                            <i class="bi bi-cash-coin fs-3"></i>
-                        </div>
-                        <div>
-                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Valor Cartera</p>
-                            <h3 class="fw-bolder mb-0 text-primary" 
-                                th:text="${#numbers.formatDecimal(valorCartera, 0, 'POINT', 0, 'COMMA')} + ' €'">0 €</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="row g-4 mb-5">
 
-        <div class="row g-4">
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-custom-md border-0 h-100 rounded-lg">
-                    <div class="card-header bg-white py-3 border-bottom-0">
-                        <h5 class="mb-0 fw-bold text-secondary"><i class="bi bi-pie-chart-fill me-2 text-primary"></i> Distribución por Tipo de Inmueble</h5>
-                    </div>
-                    <div class="card-body">
-                        <div style="height: 350px;">
-                            <canvas id="chartTipos"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm border-start border-5 border-primary h-100 rounded-3">
+                    <div class="card-body d-flex align-items-center p-4">
+                        <div
+                            class="bg-primary bg-opacity-10 p-3 rounded-3 me-4 text-primary d-flex align-items-center justify-content-center flex-shrink-0">
+                            <i class="bi bi-house-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Inmuebles Activos</p>
+                            <h2 class="fw-bolder mb-0" th:text="${totalInmuebles ?: 0}">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-custom-md border-0 h-100 rounded-lg">
-                    <div class="card-header bg-white py-3 border-bottom-0">
-                        <h5 class="mb-0 fw-bold text-secondary">
-                            <i class="bi bi-trophy-fill me-2 text-warning"></i> Inmuebles Más Populares
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-borderless table-hover mb-0 align-middle">
-                                <thead class="table-light border-bottom">
-                                    <tr>
-                                        <th class="py-3 ps-4">Inmueble</th>
-                                        <th class="py-3">Tipo</th>
-                                        <th class="py-3">Precio</th>
-                                        <th class="text-center py-3">Interesados</th>
-                                        <th class="py-3 pe-4">Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="inm : ${topInmuebles}">
-                                        <td class="ps-4">
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-primary bg-opacity-10 rounded-md p-2 me-3 text-primary">
-                                                    <i class="bi bi-building fs-5"></i>
-                                                </div>
-                                                <div>
-                                                    <span class="fw-bold d-block text-truncate" style="max-width: 150px;" th:text="'Ref #' + ${inm.id}">Ref #1</span>
-                                                    <small class="text-secondary fw-light" th:text="${inm.direccion}">Calle Falsa</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge rounded-pill text-bg-secondary fw-normal" th:text="${inm.tipoVivienda}">Piso</span>
-                                        </td>
-                                        <td class="fw-bold text-primary" th:text="${#numbers.formatDecimal(inm.precio, 0, 'POINT', 0, 'COMMA')} + ' €'">100.000 €</td>
-                                        <td class="text-center">
-                                            <span class="badge bg-danger rounded-pill fw-bold px-3 py-2" 
-                                                  th:text="${inm.numeroInteresados}">5</span>
-                                        </td>
-                                        <td class="pe-4">
-                                            <a th:href="@{/inmuebles/{id}(id=${inm.id})}" class="btn btn-sm btn-outline-primary rounded-pill">Ver Detalle</a>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${topInmuebles.isEmpty()}">
-                                        <td colspan="5" class="text-center text-secondary py-5">
-                                            <i class="bi bi-info-circle me-1"></i> No hay datos de inmuebles populares disponibles en este momento.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm border-start border-5 border-warning h-100 rounded-3">
+                    <div class="card-body d-flex align-items-center p-4">
+                        <div
+                            class="bg-warning bg-opacity-10 p-3 rounded-3 me-4 text-warning d-flex align-items-center justify-content-center flex-shrink-0">
+                            <i class="bi bi-people-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Interesados Únicos</p>
+                            <h2 class="fw-bolder mb-0" th:text="${totalInteresados ?: 0}">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <div th:replace="~{layout/base :: scripts}"></div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm border-start border-5 border-info h-100 rounded-3">
+                    <div class="card-body d-flex align-items-center p-4">
+                        <div
+                            class="bg-info bg-opacity-10 p-3 rounded-3 me-4 text-info d-flex align-items-center justify-content-center flex-shrink-0">
+                            <i class="bi bi-calendar-check-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Citas Agendadas</p>
+                            <h2 class="fw-bolder mb-0" th:text="${totalCitas ?: 0}">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm border-start border-5 border-success h-100 rounded-3">
+                    <div class="card-body d-flex align-items-center p-4">
+                        <div
+                            class="bg-success bg-opacity-10 p-3 rounded-3 me-4 text-success d-flex align-items-center justify-content-center flex-shrink-0">
+                            <i class="bi bi-cash-coin fs-3"></i>
+                        </div>
+                        <div>
+                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Valor de Cartera</p>
+                            <h3 class="fw-bolder mb-0 text-success"
+                                th:text="|${#numbers.formatDecimal(valorCartera ?: 0, 0, 'POINT', 0, 'COMMA')} €|">0 €
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        // Obtener datos desde Thymeleaf
-        const labels = /*[[${chartLabels}]]*/ [];
-        const dataValues = /*[[${chartData}]]*/ [];
+        <hr class="my-5">
 
-        const ctx = document.getElementById('chartTipos').getContext('2d');
-        const myChart = new Chart(ctx, {
-            type: 'doughnut', // 'bar', 'line', 'pie', 'doughnut'
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Cantidad de Inmuebles',
-                    data: dataValues,
-                    // Uso de colores que se complementan bien con tu paleta (Primary, Success, Info, Warning)
-                    backgroundColor: [
-                        'rgba(4, 59, 137, 0.8)', // Primary
-                        'rgba(87, 179, 51, 0.8)', // Success
-                        'rgba(13, 202, 240, 0.8)', // Info
-                        'rgba(255, 193, 7, 0.8)', // Warning
-                        'rgba(108, 117, 125, 0.8)', // Secondary
-                        'rgba(220, 53, 69, 0.8)'   // Danger
-                    ],
-                    borderColor: 'white', // Borde blanco para separar las secciones
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '75%', // Hace el doughnut más delgado
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    tooltip: {
-                        // Personalización sutil del tooltip
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 10
-                    }
-                }
-            }
-        });
-        /*]]>*/
-    </script>
+        <div class="row g-4">
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm border-0 h-100 rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom-0">
+                        <h5 class="mb-0 fw-bold text-secondary">
+                            <i class="bi bi-pie-chart-fill me-2 text-primary"></i> Distribución de Inmuebles por Tipo
+                        </h5>
+                    </div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
+                        <div id="chartContainer" style="height: 300px; width: 100%;">
+                            <canvas id="chartTipos"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm border-0 h-100 rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom-0">
+                        <h5 class="mb-0 fw-bold text-secondary">
+                            <i class="bi bi-trophy-fill me-2 text-warning"></i> Top 5 Inmuebles Más Populares
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-borderless table-hover mb-0 align-middle">
+                                <thead class="table-light border-bottom">
+                                    <tr>
+                                        <th class="py-3 ps-4">Inmueble</th>
+                                        <th class="py-3">Tipo</th>
+                                        <th class="py-3">Precio</th>
+                                        <th class="text-center py-3">Interesados</th>
+                                        <th class="py-3 pe-4">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="inm : ${topInmuebles}">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div
+                                                    class="bg-primary bg-opacity-10 rounded-3 p-2 me-3 text-primary flex-shrink-0">
+                                                    <i class="bi bi-building fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="fw-bold d-block text-truncate"
+                                                        style="max-width: 140px;" th:text="|Ref #${inm.id}|">Ref
+                                                        #1</span>
+                                                    <small class="text-secondary fw-light"
+                                                        th:text="${inm.direccion}">Dirección</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill text-bg-secondary fw-normal"
+                                                th:text="${inm.tipoVivienda}">Piso</span>
+                                        </td>
+                                        <td class="fw-bold text-primary"
+                                            th:text="|${#numbers.formatDecimal(inm.precio, 0, 'POINT', 0, 'COMMA')} €|">
+                                            100.000 €</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-danger bg-opacity-75 rounded-pill fw-bold px-3 py-2"
+                                                th:text="${#lists.size(inm.interesados) ?: 0}">0</span>
+                                        </td>
+                                        <td class="pe-4">
+                                            <a th:href="@{/inmuebles/{id}(id=${inm.id})}"
+                                                class="btn btn-sm btn-outline-primary rounded-pill">Ver</a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${topInmuebles == null or topInmuebles.isEmpty()}">
+                                        <td colspan="5" class="text-center text-secondary py-5">
+                                            <i class="bi bi-info-circle me-1"></i> No hay inmuebles populares en este
+                                            momento.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div th:replace="~{layout/base :: scripts}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script th:inline="javascript">
+        const labels = /*[[ ${chartLabels} ]]*/[];
+        const dataValues = /*[[ ${chartData} ]]*/[];
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Inmuebles por mes',
+                    data: dataValues,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
