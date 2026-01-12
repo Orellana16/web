@@ -141,19 +141,19 @@ a:hover {
    ============================================ */
 
 .bg-primary {
-    background-color: var(--color-primary) !important;
+    background-color: var(--color-primary);
 }
 
 .bg-success {
-    background-color: var(--color-success) !important;
+    background-color: var(--color-success);
 }
 
 .text-primary {
-    color: var(--color-primary) !important;
+    color: var(--color-primary);
 }
 
 .text-success {
-    color: var(--color-success) !important;
+    color: var(--color-success);
 }
 
 .shadow-custom-sm {
@@ -214,7 +214,6 @@ a:hover {
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
     padding: 0.5rem 1rem;
     border: none;
     border-radius: var(--border-radius-md);
@@ -405,16 +404,6 @@ a:hover {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem 1rem;
-}
-
-.btn-group {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-group-compact {
-    display: flex;
-    gap: 0.25rem;
 }
 
 h4,

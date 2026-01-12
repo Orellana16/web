@@ -22,7 +22,8 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm border-start border-5 border-primary h-100 rounded-3">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-4 text-primary d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div
+                            class="bg-primary bg-opacity-10 p-3 rounded-3 me-4 text-primary d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi bi-house-fill fs-3"></i>
                         </div>
                         <div>
@@ -36,7 +37,8 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm border-start border-5 border-warning h-100 rounded-3">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-3 me-4 text-warning d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div
+                            class="bg-warning bg-opacity-10 p-3 rounded-3 me-4 text-warning d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi bi-people-fill fs-3"></i>
                         </div>
                         <div>
@@ -50,7 +52,8 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm border-start border-5 border-info h-100 rounded-3">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-3 me-4 text-info d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div
+                            class="bg-info bg-opacity-10 p-3 rounded-3 me-4 text-info d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi bi-calendar-check-fill fs-3"></i>
                         </div>
                         <div>
@@ -64,7 +67,8 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm border-start border-5 border-success h-100 rounded-3">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-3 me-4 text-success d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div
+                            class="bg-success bg-opacity-10 p-3 rounded-3 me-4 text-success d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi bi-cash-coin fs-3"></i>
                         </div>
                         <div>
@@ -124,18 +128,21 @@
                                     <tr th:each="inm : ${topInmuebles}">
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center">
-                                                <div class="bg-primary bg-opacity-10 rounded-3 p-2 me-3 text-primary flex-shrink-0">
+                                                <div
+                                                    class="bg-primary bg-opacity-10 rounded-3 p-2 me-3 text-primary flex-shrink-0">
                                                     <i class="bi bi-building fs-5"></i>
                                                 </div>
                                                 <div>
-                                                    <span class="fw-bold d-block text-truncate" style="max-width: 140px;"
-                                                        th:text="|Ref #${inm.id}|">Ref #1</span>
-                                                    <small class="text-secondary fw-light" th:text="${inm.direccion}">Dirección</small>
+                                                    <span class="fw-bold d-block text-truncate"
+                                                        style="max-width: 140px;" th:text="|Ref #${inm.id}|">Ref
+                                                        #1</span>
+                                                    <small class="text-secondary fw-light"
+                                                        th:text="${inm.direccion}">Dirección</small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge rounded-pill text-bg-secondary fw-normal"
+                                            <span class="badge rounded-pill fw-normal"
                                                 th:text="${inm.tipoVivienda}">Piso</span>
                                         </td>
                                         <td class="fw-bold text-primary"
@@ -152,7 +159,8 @@
                                     </tr>
                                     <tr th:if="${topInmuebles == null or #lists.isEmpty(topInmuebles)}">
                                         <td colspan="5" class="text-center text-secondary py-5">
-                                            <i class="bi bi-info-circle me-1"></i> No hay inmuebles populares en este momento.
+                                            <i class="bi bi-info-circle me-1"></i> No hay inmuebles populares en este
+                                            momento.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -174,9 +182,9 @@
     <!-- GRÁFICO DE DISTRIBUCIÓN POR TIPO -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        document.addEventListener("DOMContentLoaded", function() {
-            const labels = /*[[ ${chartLabels} ]]*/ [];
-            const dataValues = /*[[ ${chartData} ]]*/ [];
+        document.addEventListener("DOMContentLoaded", function () {
+            const labels = /*[[ ${chartLabels} ]]*/[];
+            const dataValues = /*[[ ${chartData} ]]*/[];
 
             const ctx = document.getElementById('chartTipos').getContext('2d');
 
@@ -216,7 +224,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const value = context.parsed;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
@@ -232,4 +240,5 @@
     </script>
 
 </body>
+
 </html>
