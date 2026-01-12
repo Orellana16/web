@@ -1,22 +1,23 @@
 package com.jerezsurinmobiliaria.web.service;
 
-import com.jerezsurinmobiliaria.web.dto.InmuebleListDTO;
-import com.jerezsurinmobiliaria.web.model.Inmueble;
-import com.jerezsurinmobiliaria.web.repository.InmuebleRepository;
+import java.util.List;
+import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.jerezsurinmobiliaria.web.dto.InmuebleListDTO;
+import com.jerezsurinmobiliaria.web.model.Inmueble;
+import com.jerezsurinmobiliaria.web.repository.InmuebleRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class InmuebleService {
 
-    @Autowired
-    private InmuebleRepository inmuebleRepository;
+    private final InmuebleRepository inmuebleRepository;
 
     // ========================================================================
     // BÚSQUEDA CON FILTROS DINÁMICOS

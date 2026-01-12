@@ -1,42 +1,44 @@
 package com.jerezsurinmobiliaria.web.controller;
 
-import com.jerezsurinmobiliaria.web.dto.InmuebleListDTO;
-import com.jerezsurinmobiliaria.web.model.Inmueble;
-import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
-import com.jerezsurinmobiliaria.web.service.InmueblePdfExporter;
-import com.jerezsurinmobiliaria.web.service.InmuebleService;
-import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.jerezsurinmobiliaria.web.dto.InmuebleListDTO;
+import com.jerezsurinmobiliaria.web.model.Inmueble;
+import com.jerezsurinmobiliaria.web.model.PropiedadAdicional;
+import com.jerezsurinmobiliaria.web.service.InmueblePdfExporter;
+import com.jerezsurinmobiliaria.web.service.InmuebleService;
+import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
+
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("/inmuebles")
 @Slf4j
+@RequiredArgsConstructor
 public class InmuebleController {
 
-    @Autowired
-    private InmuebleService inmuebleService;
-
-    @Autowired
-    private PropiedadAdicionalService propiedadAdicionalService;
-
-    @Autowired
-    private InmueblePdfExporter pdfExporter;
+    private final InmuebleService inmuebleService;
+    private final PropiedadAdicionalService propiedadAdicionalService;
+    private final InmueblePdfExporter pdfExporter;
 
     // --- LISTADO Y FILTROS (GET /inmuebles) --------------------------------------
 
@@ -130,14 +132,8 @@ public class InmuebleController {
      */
     @GetMapping("/{id}")
     public String detail(@PathVariable Integer id, Model model, RedirectAttributes flash) {
-
-        // 3. El Service debe lanzar ResourceNotFoundException si el inmueble no existe.
-        // Si el método no encuentra el Inmueble, lanza una excepción que se captura
-        Optional<Inmueble> inmueble = inmuebleService.findById(id);
-
+        Optional<Inmueble> inmueble = getInmuebleOrRedirect(id, flash);
         if (!inmueble.isPresent()) {
-            log.warn("Inmueble no encontrado ID: {}", id);
-            flash.addFlashAttribute("error", "El inmueble no existe");
             return "redirect:/inmuebles";
         }
 
@@ -164,12 +160,8 @@ public class InmuebleController {
             throws IOException {
         log.info("Solicitud de exportación a PDF para inmueble ID: {}", id);
 
-        // 1. Obtener Inmueble Principal (Service lanza ResourceNotFoundException)
-        Optional<Inmueble> inmuebleOpt = inmuebleService.findById(id);
-
+        Optional<Inmueble> inmuebleOpt = getInmuebleOrRedirect(id, flash);
         if (!inmuebleOpt.isPresent()) {
-            log.warn("Inmueble no encontrado para PDF ID: {}", id);
-            flash.addFlashAttribute("error", "El inmueble no existe");
             return "redirect:/inmuebles";
         }
 
@@ -235,12 +227,8 @@ public class InmuebleController {
      */
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Integer id, Model model, RedirectAttributes flash) {
-        // El Service lanza ResourceNotFoundException si no existe
-        Optional<Inmueble> inmueble = inmuebleService.findById(id);
-
+        Optional<Inmueble> inmueble = getInmuebleOrRedirect(id, flash);
         if (!inmueble.isPresent()) {
-            log.warn("Inmueble no encontrado para edición ID: {}", id);
-            flash.addFlashAttribute("error", "El inmueble no existe");
             return "redirect:/inmuebles";
         }
 
@@ -294,5 +282,14 @@ public class InmuebleController {
             flash.addFlashAttribute("error", "Error al eliminar: " + e.getMessage());
         }
         return "redirect:/inmuebles";
+    }
+
+    private Optional<Inmueble> getInmuebleOrRedirect(Integer id, RedirectAttributes flash) {
+        Optional<Inmueble> inmueble = inmuebleService.findById(id);
+        if (!inmueble.isPresent()) {
+            log.warn("Inmueble no encontrado ID: {}", id);
+            flash.addFlashAttribute("error", "El inmueble no existe");
+        }
+        return inmueble;
     }
 }
