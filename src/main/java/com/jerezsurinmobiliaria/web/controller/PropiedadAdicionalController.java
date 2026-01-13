@@ -1,10 +1,21 @@
 package com.jerezsurinmobiliaria.web.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.jerezsurinmobiliaria.web.model.Inmueble;
@@ -14,9 +25,6 @@ import com.jerezsurinmobiliaria.web.service.PropiedadAdicionalService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/propiedades")
@@ -30,45 +38,47 @@ public class PropiedadAdicionalController {
     // ========================================================================
     // ENDPOINT DE BÚSQUEDA CON FILTROS Y PAGINACIÓN
     // ========================================================================
+@GetMapping
+public String buscarPropiedadesConFiltros(
+        @RequestParam(required = false) List<String> tipo,
+        @RequestParam(required = false) Double derramaMin,
+        @RequestParam(required = false) Double derramaMax,
+        @RequestParam(required = false) String direccionInmueble,
+        @RequestParam(required = false) Integer inmuebleId,
+        // Agregamos estos para capturarlos fácilmente como en el otro controller
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String sortDir,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        Model model) {
 
-    @GetMapping
-    public String buscarPropiedadesConFiltros(
-            @RequestParam(required = false) List<String> tipo,
-            @RequestParam(required = false) Double derramaMin,
-            @RequestParam(required = false) Double derramaMax,
-            @RequestParam(required = false) String direccionInmueble,
-            @RequestParam(required = false) Integer inmuebleId,
-            Pageable pageable,
-            Model model) {
+    // Creamos el pageable manualmente para asegurar la ordenación
+    Sort sort = sortDir.equalsIgnoreCase("asc") 
+                ? Sort.by(sortBy).ascending() 
+                : Sort.by(sortBy).descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<PropiedadAdicional> resultado = propiedadService.buscarPropiedadesConFiltros(
-                tipo,
-                derramaMin,
-                derramaMax,
-                direccionInmueble,
-                inmuebleId,
-                pageable);
+    Page<PropiedadAdicional> resultado = propiedadService.buscarPropiedadesConFiltros(
+            tipo, derramaMin, derramaMax, direccionInmueble, inmuebleId, pageable);
 
-        // Controlador (Controller) - Modificar aquí
-        model.addAttribute("propiedades", resultado);
-        model.addAttribute("filtro_tipo", tipo); // Cambiado de 'tipoSeleccionado'
-        model.addAttribute("filtro_derramaMin", derramaMin); // Cambiado de 'derramaMin'
-        model.addAttribute("filtro_derramaMax", derramaMax); // Cambiado de 'derramaMax'
-        model.addAttribute("filtro_direccionInmueble", direccionInmueble); // Cambiado de 'direccionInmueble'
-        model.addAttribute("filtro_inmuebleId", inmuebleId); // Cambiado de 'inmuebleId'
+    model.addAttribute("propiedades", resultado);
+    
+    // Filtros
+    model.addAttribute("filtro_tipo", tipo != null ? tipo : new ArrayList<>());
+    model.addAttribute("filtro_derramaMin", derramaMin);
+    model.addAttribute("filtro_derramaMax", derramaMax);
+    model.addAttribute("filtro_direccionInmueble", direccionInmueble);
+    model.addAttribute("filtro_inmuebleId", inmuebleId);
 
-        // También faltan estas en tu controlador para que la paginación funcione:
-        model.addAttribute("currentPage", resultado.getNumber());
-        model.addAttribute("totalPages", resultado.getTotalPages());
-        model.addAttribute("totalItems", resultado.getTotalElements());
+    // Paginación y Orden (USAMOS LAS VARIABLES DIRECTAS)
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", resultado.getTotalPages());
+    model.addAttribute("totalItems", resultado.getTotalElements());
+    model.addAttribute("sortBy", sortBy);
+    model.addAttribute("sortDir", sortDir);
 
-        // Y para la ordenación:
-        model.addAttribute("sortBy", pageable.getSort().get().findFirst().map(o -> o.getProperty()).orElse(null));
-        model.addAttribute("sortDir",
-                pageable.getSort().get().findFirst().map(o -> o.getDirection().name().toLowerCase()).orElse(null));
-
-        return "propiedades/list";
-    }
+    return "propiedades/list";
+}
 
     // --- DETALLE ---
 

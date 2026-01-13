@@ -4,13 +4,11 @@
 <head th:replace="~{layout/base :: head('Listado de Propiedades Adicionales')}"></head>
 
 <body>
-    <div th:replace="~{layout/base :: navbar}"></div>
+    <div th:replace="~{layout/base :: navbar('propiedades')}"></div>
     <div th:replace="~{layout/base :: messages}"></div>
 
     <div class="container-fluid px-4">
         <div class="row">
-
-            <!-- FILTROS -->
             <div class="col-lg-3">
                 <div class="filtros-container">
                     <div class="filtros-panel">
@@ -22,7 +20,7 @@
                             <input type="hidden" name="page" th:value="${currentPage}">
 
                             <div class="mb-3">
-                                <label class="form-label">Tipo de Propiedad</label>
+                                <label class="form-label"><i class="bi bi-house-fill"></i> Tipo de Propiedad</label>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="tipo" value="Garaje"
                                         id="tipoGaraje"
@@ -44,88 +42,101 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Derrama Mensual (€)</label>
+                                <label class="form-label"><i class="bi bi-currency-euro"></i> Derrama Mensual</label>
                                 <div class="row g-2">
-                                    <div class="col-6"><input type="number" class="form-control form-control-sm"
-                                            name="derramaMin" th:value="${filtro_derramaMin}" placeholder="Mín." min="0"
-                                            step="any"></div>
-                                    <div class="col-6"><input type="number" class="form-control form-control-sm"
-                                            name="derramaMax" th:value="${filtro_derramaMax}" placeholder="Máx." min="0"
-                                            step="any"></div>
+                                    <div class="col-6">
+                                        <input type="number" class="form-control form-control-sm" name="derramaMin"
+                                            th:value="${filtro_derramaMin}" placeholder="Mín." step="any">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" class="form-control form-control-sm" name="derramaMax"
+                                            th:value="${filtro_derramaMax}" placeholder="Máx." step="any">
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Dir. Inmueble Asoc.</label>
+                                <label class="form-label"><i class="bi bi-geo-alt-fill"></i> Dirección Inmueble</label>
                                 <input type="text" class="form-control form-control-sm" name="direccionInmueble"
                                     th:value="${filtro_direccionInmueble}" placeholder="Buscar dirección...">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">ID Inmueble Asoc.</label>
+                                <label class="form-label"><i class="bi bi-hash"></i> ID Inmueble Asoc.</label>
                                 <input type="number" class="form-control form-control-sm" name="inmuebleId"
                                     th:value="${filtro_inmuebleId}" placeholder="Buscar ID...">
                             </div>
 
                             <div class="d-grid gap-2 mt-4">
-                                <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
-                                <a th:href="@{/propiedades}" class="btn btn-outline-secondary">Limpiar</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search me-1"></i> Aplicar Filtros
+                                </button>
+                                <a th:href="@{/propiedades}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i> Limpiar
+                                </a>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- LISTADO -->
             <div class="col-lg-9">
                 <div class="lista-container">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center"
-                            style="--back-color:var(--color-success)">
+                            style="--line-color: var(--color-success);">
                             <h4 class="mb-0 text-white">
-                                <i class="bi bi-box-seam-fill me-1"></i>Propiedades Adicionales
+                                <i class="bi bi-box-seam-fill"></i> Propiedades Adicionales
                                 <span class="badge bg-light text-dark ms-2" th:text="${totalItems}">0</span>
                             </h4>
-                            <a th:href="@{/propiedades/new}" class="btn btn-light"><i
-                                    class="bi bi-plus-circle-fill me-1"></i>Nueva</a>
+                            <a th:href="@{/propiedades/new}" class="btn btn-light">
+                                <i class="bi bi-plus-circle-fill me-1"></i>Nueva
+                            </a>
                         </div>
                         <div class="card-body">
 
-                            <!-- FILTROS ACTIVOS -->
-                            <div th:if="${filtro_tipo != null or filtro_derramaMin != null or filtro_direccionInmueble != null or filtro_inmuebleId != null}"
+                            <div th:if="${(filtro_tipo != null and !#lists.isEmpty(filtro_tipo)) or (filtro_derramaMin != null and filtro_derramaMin != '') or (filtro_derramaMax != null and filtro_derramaMax != '') or (filtro_direccionInmueble != null and !#lists.isEmpty(filtro_direccionInmueble)) or (filtro_inmuebleId != null and !#lists.isEmpty(filtro_inmuebleId))}"
                                 class="mb-3">
-                                <small class="text-muted d-block mb-2">Filtros activos:</small>
 
-                                <span th:each="t : ${filtro_tipo}" class="badge bg-light text-dark border me-1">
-                                    <span th:text="${t}"></span>
+                                <small class="text-muted d-block mb-2">
+                                    <i class="bi bi-funnel"></i> Filtros activos:
+                                </small>
+
+                                <span th:each="t : ${filtro_tipo}"
+                                    class="filter-badge badge bg-light text-dark border me-1">
+                                    <i class="bi bi-geo-alt"></i> <span th:text="${t}"></span>
                                 </span>
 
-                                <span th:if="${filtro_derramaMin != null}" class="badge bg-light text-dark border me-1">
-                                    Derrama Mín. <span
-                                        th:text="${#numbers.formatDecimal(filtro_derramaMin, 0, 'COMMA', 2, 'POINT')}"></span>€
-                                </span>
-                                <span th:if="${filtro_derramaMax != null}" class="badge bg-light text-dark border me-1">
-                                    Derrama Máx. <span
-                                        th:text="${#numbers.formatDecimal(filtro_derramaMax, 0, 'COMMA', 2, 'POINT')}"></span>€
+                                <span th:if="${filtro_derramaMin != null and filtro_derramaMin != ''}"
+                                    class="filter-badge badge bg-light text-dark border me-1">
+                                    Desde <span
+                                        th:text="${#numbers.formatDecimal(filtro_derramaMin, 0, 'COMMA', 0, 'POINT')}"></span>€
                                 </span>
 
-                                <span th:if="${filtro_direccionInmueble != null and filtro_direccionInmueble != ''}"
-                                    class="badge bg-light text-dark border me-1">
-                                    Dir: <span th:text="${filtro_direccionInmueble}"></span>
+                                <span th:if="${filtro_derramaMax != null and filtro_derramaMax != ''}"
+                                    class="filter-badge badge bg-light text-dark border me-1">
+                                    Hasta <span
+                                        th:text="${#numbers.formatDecimal(filtro_derramaMax, 0, 'COMMA', 0, 'POINT')}"></span>€
                                 </span>
 
-                                <span th:if="${filtro_inmuebleId != null}" class="badge bg-light text-dark border me-1">
-                                    ID Inm: <span th:text="${filtro_inmuebleId}"></span>
+                                <span th:each="dir : ${filtro_direccionInmueble}"
+                                    class="filter-badge badge bg-light text-dark border me-1">
+                                    <i class="bi bi-house"></i> <span th:text="${dir}"></span>
+                                </span>
+
+                                <span th:each="id : ${filtro_inmuebleId}"
+                                    class="filter-badge badge bg-light text-dark border me-1">
+                                    <i class="bi bi-box"></i> <span th:text="${id}"></span>
                                 </span>
                             </div>
 
-                            <!-- TABLA -->
-                            <div th:if="${!propiedades.content.isEmpty()}" class="table-responsive">
-                                <table class="table table-striped mb-0">
+                            <div th:if="${!propiedades.content.isEmpty()}"
+                                class="table-responsive custom-table-wrapper shadow-sm">
+                                <table class="table table-striped table-hover mb-0">
                                     <thead>
                                         <tr>
                                             <th class="sortable-header" th:onclick="'ordenarPor(\'id\')'">
-                                                ID Prop. <i class="bi sort-icon"
+                                                ID <i class="bi sort-icon"
                                                     th:classappend="${sortBy == 'id'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i>
                                             </th>
                                             <th class="sortable-header" th:onclick="'ordenarPor(\'tipo\')'">
@@ -136,62 +147,45 @@
                                                 Derrama <i class="bi sort-icon"
                                                     th:classappend="${sortBy == 'derrama'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i>
                                             </th>
-                                            <th class="sortable-header" th:onclick="'ordenarPor(\'ibi\')'">
-                                                IBI <i class="bi sort-icon"
-                                                    th:classappend="${sortBy == 'ibi'} ? (${sortDir == 'asc'} ? 'bi-sort-up' : 'bi-sort-down') : 'bi-arrow-down-up'"></i>
-                                            </th>
                                             <th>Inmueble Asociado</th>
-                                            <th>Acciones</th>
+                                            <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr th:each="propiedad : ${propiedades.content}">
                                             <td th:text="${propiedad.id}"></td>
-
                                             <td>
-                                                <i class="bi bi-car-front" th:if="${propiedad.tipo == 'Garaje'}"
-                                                    title="Garaje"></i>
-                                                <i class="bi bi-box" th:if="${propiedad.tipo == 'Trastero'}"
-                                                    title="Trastero"></i>
-                                                <i class="bi bi-water" th:if="${propiedad.tipo == 'Piscina'}"
-                                                    title="Piscina"></i>
-                                                <span th:text="${propiedad.tipo}"></span>
+                                                <div class="fw-bold">
+                                                    <i class="bi bi-car-front me-1"
+                                                        th:if="${propiedad.tipo == 'Garaje'}"></i>
+                                                    <i class="bi bi-box me-1"
+                                                        th:if="${propiedad.tipo == 'Trastero'}"></i>
+                                                    <i class="bi bi-water me-1"
+                                                        th:if="${propiedad.tipo == 'Piscina'}"></i>
+                                                    <span th:text="${propiedad.tipo}"></span>
+                                                </div>
                                             </td>
-
-                                            <!-- DERRAMA (corregido) -->
-                                            <td th:text="${
-                                                (propiedad.derrama == null) ? '—' :
+                                            <td class="fw-bold text-nowrap" th:text="${
+                                                (propiedad.derrama == 0 || propiedad.derrama == null) ? '—' :
                                                 (T(java.lang.Number).isInstance(propiedad.derrama) ? 
-                                                    #numbers.formatDecimal(propiedad.derrama, 0, 'COMMA', 2, 'POINT') + ' €' : 
-                                                    propiedad.derrama
-                                                )
+                                                    #numbers.formatDecimal(propiedad.derrama, 0, 'POINT', 2, 'COMMA') + ' €' : 
+                                                    propiedad.derrama)
                                             }"></td>
-
-                                            <!-- IBI (corregido) -->
-                                            <td th:text="${
-                                                (propiedad.ibi == null) ? '—' :
-                                                (T(java.lang.Number).isInstance(propiedad.ibi) ? 
-                                                    #numbers.formatDecimal(propiedad.ibi, 0, 'COMMA', 2, 'POINT') + ' €' : 
-                                                    propiedad.ibi
-                                                )
-                                            }"></td>
-
                                             <td>
                                                 <div th:if="${propiedad.inmueble != null}">
                                                     <a th:href="@{/inmuebles/{id}(id=${propiedad.inmueble.id})}"
-                                                        class="text-decoration-none text-primary">
+                                                        class="text-decoration-none fw-bold text-primary d-block text-truncate"
+                                                        style="max-width: 200px;">
                                                         <span th:text="${propiedad.inmueble.direccion}"></span>
                                                     </a>
-                                                    <small class="text-muted d-block"
-                                                        th:text="'(ID: ' + ${propiedad.inmueble.id} + ')'"></small>
+                                                    <small class="text-muted"
+                                                        th:text="'ID: ' + ${propiedad.inmueble.id}"></small>
                                                 </div>
                                                 <span th:unless="${propiedad.inmueble != null}"
-                                                    class="badge bg-secondary">
-                                                    No Asignado
-                                                </span>
+                                                    class="badge bg-secondary">No Asignado</span>
                                             </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm btn-group-xs-mobile">
                                                     <a th:href="@{/propiedades/{id}(id=${propiedad.id})}"
                                                         class="btn btn-info" title="Ver"><i class="bi bi-eye"></i></a>
                                                     <a th:href="@{/propiedades/{id}/edit(id=${propiedad.id})}"
@@ -202,19 +196,18 @@
                                                         title="Eliminar"><i class="bi bi-trash"></i></button>
                                                 </div>
                                             </td>
-
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
 
-                            <div th:if="${propiedades.content.isEmpty()}" class="alert alert-info text-center mt-3">
-                                No hay propiedades que cumplan los criterios.
+                            <div th:if="${propiedades.content.isEmpty()}"
+                                class="alert alert-info text-center mt-3 shadow-sm">
+                                <i class="bi bi-info-circle me-2"></i> No hay propiedades que cumplan los criterios.
                             </div>
 
-                            <!-- PAGINACIÓN -->
-                            <nav th:if="${totalPages > 1}" class="mt-3">
-                                <ul class="pagination justify-content-center">
+                            <nav th:if="${totalPages > 1}" class="mt-4">
+                                <ul class="pagination justify-content-center shadow-sm">
                                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                                         <a class="page-link" href="#"
                                             th:onclick="'cambiarPagina(' + ${currentPage - 1} + '); return false;'">Anterior</a>

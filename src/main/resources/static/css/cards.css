@@ -139,23 +139,13 @@
 
 /* Estilos para Badges Modernos */
 .badge {
-    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-    color: #374151;
+    background: var(--alquiler-bg, var(--color-primary));
     border: 1px solid rgba(0, 0, 0, 0.1);
-    transition: all var(--transition-fast);
-}
-
-.badge:hover {
-    transform: scale(1.05);
 }
 
 .badge-success {
     background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-hover) 100%);
     color: white;
     box-shadow: var(--shadow-success);
-}
-
-.badge-info {
-    background: linear-gradient(135deg, var(--color-info) 0%, #17a2b8 100%);
-    color: white;
+    min-width: 45px;
 }

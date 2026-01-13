@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{layout/base :: head(${title})}"></head>
+
 <body>
-    <div th:replace="~{layout/base :: navbar}"></div>
+    <div th:replace="~{layout/base :: navbar('propiedades')}"></div>
     <div th:replace="~{layout/base :: messages}"></div>
 
     <div class="container">
@@ -13,29 +15,24 @@
         <div class="card">
             <div class="card-header bg-success text-white">
                 <h4 class="mb-0">
-                    <i class="bi bi-boxes"></i> 
+                    <i class="bi bi-boxes"></i>
                     <span th:text="${action} + ' Propiedad Adicional'">Formulario</span>
                 </h4>
             </div>
             <div class="card-body">
-                <form th:action="${propiedad.id != null} ? @{/propiedades/{id}(id=${propiedad.id})} : @{/propiedades}" 
-                      method="post" 
-                      th:object="${propiedad}">
-                    
+                <form th:action="${propiedad.id != null} ? @{/propiedades/{id}(id=${propiedad.id})} : @{/propiedades}"
+                    method="post" th:object="${propiedad}">
+
                     <!-- Inmueble asociado -->
                     <div class="mb-4">
                         <label for="inmuebleId" class="form-label">
                             Inmueble <span class="text-danger">*</span>
                         </label>
-                        <select class="form-select" 
-                                id="inmuebleId" 
-                                name="inmuebleId" 
-                                required>
+                        <select class="form-select" id="inmuebleId" name="inmuebleId" required>
                             <option value="">Seleccionar inmueble...</option>
-                            <option th:each="inm : ${inmuebles}" 
-                                    th:value="${inm.id}" 
-                                    th:text="${inm.id + ' - ' + inm.direccion + ' (' + inm.tipoVivienda + ')'}"
-                                    th:selected="${propiedad.inmueble != null && propiedad.inmueble.id == inm.id}">
+                            <option th:each="inm : ${inmuebles}" th:value="${inm.id}"
+                                th:text="${inm.id + ' - ' + inm.direccion + ' (' + inm.tipoVivienda + ')'}"
+                                th:selected="${propiedad.inmueble != null && propiedad.inmueble.id == inm.id}">
                                 1 - Calle Larga (Piso)
                             </option>
                         </select>
@@ -71,14 +68,8 @@
                                 <label for="derrama" class="form-label">
                                     Derrama Mensual (€) <span class="text-danger">*</span>
                                 </label>
-                                <input type="number" 
-                                       class="form-control" 
-                                       id="derrama" 
-                                       th:field="*{derrama}" 
-                                       required 
-                                       min="0" 
-                                       step="0.01"
-                                       placeholder="50.00">
+                                <input type="number" class="form-control" id="derrama" th:field="*{derrama}" required
+                                    min="0" step="0.01" placeholder="50.00">
                                 <div class="form-text">
                                     <i class="bi bi-info-circle"></i> Coste mensual adicional por esta propiedad
                                 </div>
@@ -91,13 +82,8 @@
                                 <label for="ibi" class="form-label">
                                     IBI Anual <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="ibi" 
-                                       th:field="*{ibi}" 
-                                       required 
-                                       maxlength="45"
-                                       placeholder="100 €/año">
+                                <input type="text" class="form-control" id="ibi" th:field="*{ibi}" required
+                                    maxlength="45" placeholder="100 €/año">
                                 <div class="form-text">
                                     <i class="bi bi-info-circle"></i> Impuesto de Bienes Inmuebles anual
                                 </div>
@@ -109,17 +95,16 @@
                     <div th:if="${propiedad.inmueble != null}" class="alert alert-info mt-3">
                         <h6><i class="bi bi-house-door"></i> Inmueble asociado:</h6>
                         <p class="mb-1">
-                            <strong>Dirección:</strong> 
+                            <strong>Dirección:</strong>
                             <span th:text="${propiedad.inmueble.direccion}">Calle Larga, 10</span>
                         </p>
                         <p class="mb-1">
-                            <strong>Tipo:</strong> 
+                            <strong>Tipo:</strong>
                             <span th:text="${propiedad.inmueble.tipoVivienda}">Piso</span>
                         </p>
                         <p class="mb-0">
-                            <a th:href="@{/inmuebles/{id}(id=${propiedad.inmueble.id})}" 
-                               class="btn btn-sm btn-primary">
-                                <i class="bi bi-eye"></i> Ver inmueble
+                            <a th:href="@{/inmuebles/{id}(id=${propiedad.inmueble.id})}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye me-1"></i> Ver inmueble
                             </a>
                         </p>
                     </div>
@@ -127,10 +112,10 @@
                     <!-- Botones -->
                     <div class="d-flex justify-content-between mt-4">
                         <a th:href="@{/propiedades}" class="btn btn-secondary">
-                            <i class="bi bi-x-circle"></i> Cancelar
+                            <i class="bi bi-x-circle me-1"></i> Cancelar
                         </a>
                         <button type="submit" class="btn btn-success">
-                            <i class="bi bi-save"></i> 
+                            <i class="bi bi-save me-1"></i>
                             <span th:text="${action}">Guardar</span>
                         </button>
                     </div>
@@ -141,4 +126,5 @@
 
     <div th:replace="~{layout/base :: scripts}"></div>
 </body>
+
 </html>

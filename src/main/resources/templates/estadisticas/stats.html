@@ -2,80 +2,78 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{layout/base :: head(${title})}"></head>
+<link rel="stylesheet" th:href="@{/css/stats.css}">
 
 <body>
-    <div th:replace="~{layout/base :: navbar}"></div>
-
+    <div th:replace="~{layout/base :: navbar('estadisticas')}"></div>
     <div th:replace="~{layout/base :: messages}"></div>
 
     <div class="container my-5">
-
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-            <h2 class="text-primary fw-bolder">
-                <i class="bi bi-speedometer2 me-2"></i> Dashboard de Estadísticas
-            </h2>
-            <span class="text-secondary fw-light">Resumen general y métricas clave de la inmobiliaria</span>
+        <div class="d-flex justify-content-between align-items-end mb-5 pb-3 border-bottom">
+            <div>
+                <h2 class="text-primary fw-bolder mb-1">
+                    <i class="bi bi-grid-1x2-fill me-2"></i> Dashboard de Estadísticas
+                </h2>
+                <p class="text-secondary mb-0">Análisis en tiempo real de tu cartera inmobiliaria.</p>
+            </div>
+            <div class="text-end d-none d-md-block">
+                <span class="badge filter-badge">
+                    <i class="bi bi-clock-history"></i>
+                    <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}"></span>
+                </span>
+            </div>
         </div>
 
-        <!-- TARJETAS DE MÉTRICAS -->
         <div class="row g-4 mb-5">
             <div class="col-lg-3 col-md-6">
-                <div class="card shadow-sm border-start border-5 border-primary h-100 rounded-3">
+                <div class="card kpi-card border-start border-5 border-primary h-100">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div
-                            class="bg-primary bg-opacity-10 p-3 rounded-3 me-4 text-primary d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div class="icon-box bg-primary bg-opacity-10 text-primary me-4">
                             <i class="bi bi-house-fill fs-3"></i>
                         </div>
                         <div>
-                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Inmuebles Activos</p>
+                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Inmuebles</p>
                             <h2 class="fw-bolder mb-0" th:text="${totalInmuebles ?: 0}">0</h2>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="col-lg-3 col-md-6">
-                <div class="card shadow-sm border-start border-5 border-warning h-100 rounded-3">
+                <div class="card kpi-card border-start border-5 border-warning h-100">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div
-                            class="bg-warning bg-opacity-10 p-3 rounded-3 me-4 text-warning d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div class="icon-box bg-warning bg-opacity-10 text-warning me-4">
                             <i class="bi bi-people-fill fs-3"></i>
                         </div>
                         <div>
-                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Interesados Únicos</p>
+                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Interesados</p>
                             <h2 class="fw-bolder mb-0" th:text="${totalInteresados ?: 0}">0</h2>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="col-lg-3 col-md-6">
-                <div class="card shadow-sm border-start border-5 border-info h-100 rounded-3">
+                <div class="card kpi-card border-start border-5 border-info h-100">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div
-                            class="bg-info bg-opacity-10 p-3 rounded-3 me-4 text-info d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div class="icon-box bg-info bg-opacity-10 text-info me-4">
                             <i class="bi bi-calendar-check-fill fs-3"></i>
                         </div>
                         <div>
-                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Citas Agendadas</p>
+                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Citas</p>
                             <h2 class="fw-bolder mb-0" th:text="${totalCitas ?: 0}">0</h2>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="col-lg-3 col-md-6">
-                <div class="card shadow-sm border-start border-5 border-success h-100 rounded-3">
+                <div class="card kpi-card border-start border-5 border-success h-100">
                     <div class="card-body d-flex align-items-center p-4">
-                        <div
-                            class="bg-success bg-opacity-10 p-3 rounded-3 me-4 text-success d-flex align-items-center justify-content-center flex-shrink-0">
+                        <div class="icon-box bg-success bg-opacity-10 text-success me-4">
                             <i class="bi bi-cash-coin fs-3"></i>
                         </div>
                         <div>
-                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Valor de Cartera</p>
+                            <p class="text-secondary fw-semibold mb-1 text-uppercase small">Valor Cartera</p>
                             <h3 class="fw-bolder mb-0 text-success"
-                                th:text="|${#numbers.formatDecimal(valorCartera ?: 0, 0, 'POINT', 0, 'COMMA')} €|">
-                                0 €
+                                th:text="|${#numbers.formatDecimal(valorCartera ?: 0, 0, 'POINT', 0, 'COMMA')} €|">0 €
                             </h3>
                         </div>
                     </div>
@@ -83,84 +81,67 @@
             </div>
         </div>
 
-        <hr class="my-5">
-
-        <!-- GRÁFICO DE DISTRIBUCIÓN POR TIPO -->
-        <div class="row g-4 mb-5">
-            <div class="col-12">
-                <div class="card shadow-sm border-0 rounded-3">
-                    <div class="card-header bg-white py-3 border-bottom-0">
-                        <h5 class="mb-0 fw-bold text-secondary">
-                            <i class="bi bi-pie-chart-fill me-2 text-primary"></i> Distribución de Inmuebles por Tipo
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card shadow-md border-0 h-100 rounded-lg">
+                    <div class="card-header bg-white py-3 border-bottom text-center">
+                        <h5 class="mb-0 fw-bold text-dark small text-uppercase letter-spacing">
+                            <i class="bi bi-bar-chart-fill me-2 text-primary"></i> Distribución por Tipo
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <div style="height: 380px; width: 100%;">
+                    <div class="card-body d-flex flex-column justify-content-center p-4">
+                        <div class="chart-container-wrapper">
                             <canvas id="chartTipos"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- TOP 5 INMUEBLES MÁS POPULARES -->
-        <div class="row g-4">
-            <div class="col-12">
-                <div class="card shadow-sm border-0 rounded-3">
-                    <div class="card-header bg-white py-3 border-bottom-0">
-                        <h5 class="mb-0 fw-bold text-secondary">
-                            <i class="bi bi-trophy-fill me-2 text-warning"></i> Top 5 Inmuebles Más Populares
+            <div class="col-lg-7">
+                <div class="card shadow-md border-0 h-100 rounded-lg card-table-container">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h5 class="mb-0 fw-bold text-dark small text-uppercase letter-spacing">
+                            <i class="bi bi-graph-up-arrow me-2 text-primary"></i> Tendencias de Interés
                         </h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-borderless table-hover mb-0 align-middle">
-                                <thead class="table-light border-bottom">
+                            <table class="table table-hover table-ranking mb-0 align-middle">
+                                <thead>
                                     <tr>
-                                        <th class="py-3 ps-4">Inmueble</th>
-                                        <th class="py-3">Tipo</th>
-                                        <th class="py-3">Precio</th>
-                                        <th class="text-center py-3">Interesados</th>
-                                        <th class="py-3 pe-4">Acción</th>
+                                        <th class="ps-4">POS</th>
+                                        <th>Inmueble</th>
+                                        <th>Precio</th>
+                                        <th>Interés</th>
+                                        <th class="pe-4">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="inm : ${topInmuebles}">
-                                        <td class="ps-4">
-                                            <div class="d-flex align-items-center">
-                                                <div
-                                                    class="bg-primary bg-opacity-10 rounded-3 p-2 me-3 text-primary flex-shrink-0">
-                                                    <i class="bi bi-building fs-5"></i>
-                                                </div>
-                                                <div>
-                                                    <span class="fw-bold d-block text-truncate"
-                                                        style="max-width: 140px;" th:text="|Ref #${inm.id}|">Ref
-                                                        #1</span>
-                                                    <small class="text-secondary fw-light"
-                                                        th:text="${inm.direccion}">Dirección</small>
-                                                </div>
-                                            </div>
+                                    <tr th:each="inm, iter : ${topInmuebles}">
+                                        <td class="ps-4 text-center">
+                                            <span class="fw-bold" th:text="${iter.count}"
+                                                th:classappend="${iter.count == 1 ? 'text-warning' : (iter.count == 2 ? 'text-secondary' : (iter.count == 3 ? 'text-brown' : 'text-muted'))}">1</span>
                                         </td>
                                         <td>
-                                            <span class="badge rounded-pill fw-normal"
-                                                th:text="${inm.tipoVivienda}">Piso</span>
+                                            <span class="fw-bold d-block text-dark small"
+                                                th:text="|Ref #${inm.id}|"></span>
+                                            <small class="text-muted text-truncate d-inline-block"
+                                                style="max-width: 150px;" th:text="${inm.direccion}"></small>
                                         </td>
-                                        <td class="fw-bold text-primary"
+                                        <td class="fw-bold text-dark small"
                                             th:text="|${#numbers.formatDecimal(inm.precio, 0, 'POINT', 0, 'COMMA')} €|">
-                                            100.000 €</td>
+                                        </td>
                                         <td class="text-center">
-                                            <span class="badge bg-danger bg-opacity-75 rounded-pill fw-bold px-3 py-2"
-                                                th:text="${#lists.size(inm.interesados) ?: 0}">0</span>
+                                            <span
+                                                class="badge rounded-pill bg-light text-primary border border-primary border-opacity-25">
+                                                <i class="bi bi-fire me-1"></i> <span
+                                                    th:text="${#lists.size(inm.interesados) ?: 0}"></span>
+                                            </span>
                                         </td>
-                                        <td class="pe-4">
+                                        <td class="pe-4 text-center">
                                             <a th:href="@{/inmuebles/{id}(id=${inm.id})}"
-                                                class="btn btn-sm btn-outline-primary rounded-pill">Ver</a>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${topInmuebles == null or #lists.isEmpty(topInmuebles)}">
-                                        <td colspan="5" class="text-center text-secondary py-5">
-                                            <i class="bi bi-info-circle me-1"></i> No hay inmuebles populares en este
-                                            momento.
+                                                class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm"
+                                                style="font-size: 0.75rem;">Detalles</a>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -170,75 +151,46 @@
                 </div>
             </div>
         </div>
-
     </div>
 
-    <!-- SCRIPTS COMUNES DEL LAYOUT -->
     <div th:replace="~{layout/base :: scripts}"></div>
-
-    <!-- CHART.JS (IMPORTANTE: CARGAR ANTES DEL SCRIPT PERSONALIZADO) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- GRÁFICO DE DISTRIBUCIÓN POR TIPO -->
     <script th:inline="javascript">
-        /*<![CDATA[*/
         document.addEventListener("DOMContentLoaded", function () {
             const labels = /*[[ ${chartLabels} ]]*/[];
             const dataValues = /*[[ ${chartData} ]]*/[];
-
             const ctx = document.getElementById('chartTipos').getContext('2d');
 
+            const barColors = [
+                'rgba(78, 115, 223, 0.85)', 'rgba(28, 200, 138, 0.85)',
+                'rgba(54, 185, 204, 0.85)', 'rgba(246, 194, 62, 0.85)',
+                'rgba(231, 74, 59, 0.85)', 'rgba(133, 135, 150, 0.85)', 'rgba(90, 92, 105, 0.85)'
+            ];
+
             new Chart(ctx, {
-                type: 'doughnut',
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Inmuebles',
                         data: dataValues,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.8)',
-                            'rgba(54, 162, 235, 0.8)',
-                            'rgba(255, 206, 86, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(153, 102, 255, 0.8)',
-                            'rgba(255, 159, 64, 0.8)',
-                            'rgba(199, 199, 199, 0.8)'
-                        ],
-                        borderColor: '#fff',
-                        borderWidth: 3,
-                        hoverOffset: 10
+                        backgroundColor: barColors,
+                        borderRadius: 5,
+                        barThickness: 18
                     }]
                 },
                 options: {
-                    responsive: true,
+                    indexAxis: 'x',
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                padding: 20,
-                                font: {
-                                    size: 14
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return `${context.label}: ${value} inmuebles (${percentage}%)`;
-                                }
-                            }
-                        }
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', stepSize: 1 } },
+                        y: { grid: { display: false }, ticks: { color: '#475569', font: { weight: '600' } } }
                     }
                 }
             });
         });
-        /*]]>*/
     </script>
-
 </body>
 
 </html>
